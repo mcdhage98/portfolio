@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brand Identities — Mayur C Dhage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #0a0010;
+        --surface: #0f0018;
+        --surface2: #130020;
+        --border: rgba(180, 0, 255, 0.18);
+        --text: #ffffff;
+        --muted: #d8cce8;
+        --cyan: #5eead4;
+        --pink: #e8619d;
+        --purple: #b400ff;
+        --glow-c: rgba(94, 234, 212, 0.25);
+        --glow-p: rgba(232, 97, 157, 0.25);
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Share Tech Mono', monospace;
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* ── CURSOR ── */
+      #cursor {
+        position: fixed; z-index: 9999; pointer-events: none;
+        width: 12px; height: 12px;
+        background: var(--cyan);
+        clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        transform: translate(-50%, -50%) rotate(0deg);
+        transition: transform 0.08s ease;
+        mix-blend-mode: screen;
+      }
+      #cursor-ring {
+        position: fixed; z-index: 9998; pointer-events: none;
+        width: 40px; height: 40px;
+        border: 1px solid rgba(94, 234, 212, 0.5);
+        transform: translate(-50%, -50%) rotate(45deg);
+        transition: transform 0.18s ease, width 0.2s, height 0.2s;
+      }
+      body:has(a:hover) #cursor-ring { width: 60px; height: 60px; border-color: var(--pink); }
+
+      /* ── GRID BG ── */
+      body::before {
+        content: '';
+        position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        background-image:
+          linear-gradient(rgba(180, 0, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(180, 0, 255, 0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 20px 56px;
+        background: rgba(10, 0, 16, 0.85);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-logo {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 18px; font-weight: 900;
+        letter-spacing: 0.1em; color: var(--cyan);
+        text-shadow: 0 0 16px rgba(94,234,212,0.5);
+        text-decoration: none;
+      }
+      .nav-right { display: flex; gap: 24px; align-items: center; }
+      .nav-link {
+        color: var(--muted); text-decoration: none;
+        font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+        transition: color 0.2s;
+      }
+      .nav-link:hover { color: var(--cyan); }
+      .nav-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        border: 1px solid var(--pink); color: var(--pink);
+        font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        padding: 10px 20px; text-decoration: none;
+        clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .nav-btn:hover {
+        background: rgba(232,97,157,0.08);
+        box-shadow: 0 0 24px rgba(232,97,157,0.25);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        position: relative;
+        min-height: 60vh;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center;
+        padding: 120px 56px 80px;
+        overflow: hidden;
+      }
+      .hero-scan {
+        position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        animation: scan 5s linear infinite; opacity: 0.5;
+      }
+      @keyframes scan { from { top: 0; } to { top: 100%; } }
+
+      .hero-inner { position: relative; z-index: 2; max-width: 800px; }
+      .hero-eyebrow {
+        font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+        color: var(--cyan); margin-bottom: 20px;
+        display: flex; align-items: center; gap: 12px; justify-content: center;
+      }
+      .hero-eyebrow::before { content: '>_'; color: var(--pink); }
+      .hero-h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: clamp(36px, 6vw, 80px);
+        font-weight: 900; line-height: 1; letter-spacing: 0.02em;
+        margin-bottom: 24px;
+      }
+      .hero-h1 span {
+        color: var(--pink);
+        text-shadow: 0 0 30px rgba(232,97,157,0.45);
+      }
+      .hero-sub {
+        color: var(--muted); font-size: 16px; line-height: 1.9;
+        max-width: 540px; margin: 0 auto 48px;
+      }
+
+      /* ── LOGO GRID ── */
+      #logos {
+        padding: 0 56px 100px;
+        max-width: 1300px;
+        margin: 0 auto;
+        position: relative; z-index: 2;
+      }
+
+      /* Each logo section */
+      .logo-section {
+        margin-bottom: 80px;
+      }
+      .logo-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .logo-section-name {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 14px; font-weight: 900;
+        letter-spacing: 0.12em;
+        color: var(--text);
+      }
+      .logo-section-tag {
+        font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+        color: var(--pink);
+        border: 1px solid rgba(232,97,157,0.25);
+        padding: 3px 10px;
+      }
+      .logo-section-link {
+        font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+        color: var(--cyan); text-decoration: none;
+        display: flex; align-items: center; gap: 6px;
+        transition: text-shadow 0.2s;
+      }
+      .logo-section-link:hover { text-shadow: 0 0 10px rgba(94,234,212,0.5); }
+
+      .logo-variants {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+
+      .logo-cell {
+        background: var(--surface);
+        padding: 44px 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s;
+        min-height: 220px;
+      }
+      .logo-cell::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--pink), var(--cyan));
+        transform: scaleX(0); transform-origin: left;
+        transition: transform 0.3s;
+      }
+      .logo-cell:hover { background: var(--surface2); }
+      .logo-cell:hover::before { transform: scaleX(1); }
+
+      .logo-cell.dark-bg { background: #ffffff08; }
+      .logo-cell.light-bg {
+        background: #f0f4ff;
+        border: none;
+      }
+      .logo-cell.light-bg:hover { background: #e8eeff; }
+      .logo-cell.light-bg .cell-label { color: #6b7280; }
+
+      .cell-label {
+        font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+        color: var(--muted);
+        position: absolute; top: 14px; left: 18px;
+      }
+
+      .cell-variant-mark {
+        position: absolute; top: 14px; right: 14px;
+        font-size: 9px; letter-spacing: 0.12em;
+        text-transform: uppercase; color: rgba(94,234,212,0.4);
+      }
+
+      .logo-svg-wrap {
+        display: flex; align-items: center; justify-content: center;
+      }
+
+      .logo-wordmark {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900; letter-spacing: 0.08em;
+        text-align: center;
+      }
+
+      /* ── INDIVIDUAL LOGO COLORS ── */
+      /* NEXUS */
+      .nexus-color { --accent: #5eead4; --accent2: #38bdf8; }
+      .nexus-wordmark { font-size: 18px; color: #38bdf8; text-shadow: 0 0 16px rgba(56,189,248,0.4); }
+
+      /* DEPLOYKIT */
+      .deploy-color { --accent: #00ff41; --accent2: #00b4d8; }
+      .deploy-wordmark { font-size: 15px; color: #00ff41; font-family: 'Share Tech Mono', monospace; text-shadow: 0 0 12px rgba(0,255,65,0.4); }
+
+      /* AUTHWAVE */
+      .auth-color { --accent: #6366f1; --accent2: #7c3aed; }
+      .auth-wordmark { font-size: 17px; color: #6366f1; font-family: 'Space Grotesk', sans-serif; font-weight: 800; }
+
+      /* PULSE */
+      .pulse-color { --accent: #ff6b35; --accent2: #f43f8e; }
+      .pulse-wordmark { font-size: 22px; color: #ff6b35; font-family: 'Space Grotesk', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+
+      /* SCHEMAGEN */
+      .schema-color { --accent: #89b4fa; --accent2: #94e2d5; }
+      .schema-wordmark { font-size: 14px; color: #89b4fa; font-family: 'Fira Code', monospace; }
+
+      /* ── DIVIDER ── */
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border), transparent);
+        margin: 20px 0;
+      }
+
+      /* ── LEGEND / FOOTER NOTE ── */
+      .legend {
+        padding: 0 56px 60px;
+        max-width: 1300px;
+        margin: 0 auto;
+        position: relative; z-index: 2;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+      .legend-item {
+        background: var(--surface);
+        padding: 20px 24px;
+        display: flex; align-items: center; gap: 12px;
+      }
+      .legend-swatch {
+        width: 32px; height: 32px;
+        border: 1px solid rgba(255,255,255,0.1);
+        display: grid; place-items: center;
+        font-size: 10px; color: var(--muted);
+        flex-shrink: 0;
+      }
+      .legend-text {}
+      .legend-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+      .legend-desc { font-size: 10px; color: var(--muted); letter-spacing: 0.05em; }
+
+      /* ── FOOTER ── */
+      footer {
+        padding: 24px 56px;
+        border-top: 1px solid var(--border);
+        display: flex; justify-content: space-between;
+        font-size: 12px; letter-spacing: 0.1em; color: var(--muted);
+        position: relative; z-index: 2;
+      }
+      footer a { color: var(--cyan); text-decoration: none; }
+
+      @media (max-width: 960px) {
+        nav { padding: 16px 24px; }
+        #hero { padding: 100px 24px 60px; }
+        #logos, .legend { padding-left: 24px; padding-right: 24px; }
+        .logo-variants { grid-template-columns: repeat(2, 1fr); }
+        .legend { grid-template-columns: repeat(2, 1fr); }
+        footer { padding: 20px 24px; flex-direction: column; gap: 6px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cursor"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- NAV -->
+    <nav>
+      <a href="cyberpunk.html" class="nav-logo">MAYUR C DHAGE</a>
+      <div class="nav-right">
+        <a href="cyberpunk.html#projects" class="nav-link">← Projects</a>
+        <a href="cyberpunk.html#contact" class="nav-btn">Contact ↗</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-scan"></div>
+      <div class="hero-inner">
+        <div class="hero-eyebrow">Brand Identity System</div>
+        <h1 class="hero-h1">CUSTOM<br><span>LOGOS</span></h1>
+        <p class="hero-sub">
+          Five distinct brand identities — each designed from scratch to reflect the personality, audience, and tech stack of its product.
+          All logos are pure SVG, infinitely scalable.
+        </p>
+      </div>
+    </section>
+
+    <!-- LOGOS -->
+    <section id="logos">
+
+      <!-- ─── 1. NEXUS ANALYTICS ─── -->
+      <div class="logo-section nexus-color">
+        <div class="logo-section-header">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="logo-section-name">NEXUS ANALYTICS</span>
+            <span class="logo-section-tag">SaaS Platform</span>
+          </div>
+          <a href="nexus-analytics.html" class="logo-section-link">View Landing Page ↗</a>
+        </div>
+        <div class="logo-variants">
+
+          <!-- Icon mark (dark) -->
+          <div class="logo-cell">
+            <span class="cell-label">Icon Mark</span>
+            <span class="cell-variant-mark">Dark</span>
+            <div class="logo-svg-wrap">
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="n1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="100%" stop-color="#5eead4"/>
+                  </linearGradient>
+                </defs>
+                <!-- Outer hex ring -->
+                <polygon points="40,4 68,20 68,56 40,72 12,56 12,20" fill="none" stroke="rgba(56,189,248,0.2)" stroke-width="1"/>
+                <!-- Center node (glowing) -->
+                <circle cx="40" cy="40" r="8" fill="url(#n1)"/>
+                <circle cx="40" cy="40" r="12" fill="none" stroke="rgba(56,189,248,0.2)" stroke-width="1"/>
+                <!-- 6 outer nodes -->
+                <circle cx="40" cy="12" r="5" fill="url(#n1)" opacity="0.85"/>
+                <circle cx="64" cy="26" r="5" fill="url(#n1)" opacity="0.85"/>
+                <circle cx="64" cy="54" r="5" fill="url(#n1)" opacity="0.85"/>
+                <circle cx="40" cy="68" r="5" fill="url(#n1)" opacity="0.85"/>
+                <circle cx="16" cy="54" r="5" fill="url(#n1)" opacity="0.85"/>
+                <circle cx="16" cy="26" r="5" fill="url(#n1)" opacity="0.85"/>
+                <!-- Spokes -->
+                <line x1="40" y1="40" x2="40" y2="17" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="60" y2="29" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="60" y2="51" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="40" y2="63" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="20" y2="51" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="20" y2="29" stroke="url(#n1)" stroke-width="1.5" opacity="0.6"/>
+                <!-- Outer ring connections -->
+                <line x1="40" y1="12" x2="64" y2="26" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+                <line x1="64" y1="26" x2="64" y2="54" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+                <line x1="64" y1="54" x2="40" y2="68" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+                <line x1="40" y1="68" x2="16" y2="54" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+                <line x1="16" y1="54" x2="16" y2="26" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+                <line x1="16" y1="26" x2="40" y2="12" stroke="url(#n1)" stroke-width="0.8" opacity="0.25"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Wordmark -->
+          <div class="logo-cell">
+            <span class="cell-label">Wordmark</span>
+            <span class="cell-variant-mark">Dark</span>
+            <div style="text-align:center;">
+              <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:0.1em;color:#38bdf8;text-shadow:0 0 20px rgba(56,189,248,0.4);margin-bottom:6px;">NEXUS</div>
+              <div style="font-size:11px;letter-spacing:0.35em;color:#5eead4;text-transform:uppercase;">ANALYTICS</div>
+            </div>
+          </div>
+
+          <!-- Combination mark -->
+          <div class="logo-cell">
+            <span class="cell-label">Combination</span>
+            <span class="cell-variant-mark">Dark</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <svg width="44" height="44" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="n2" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#5eead4"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="8" fill="url(#n2)"/>
+                <circle cx="40" cy="12" r="5" fill="url(#n2)" opacity="0.85"/>
+                <circle cx="64" cy="26" r="5" fill="url(#n2)" opacity="0.85"/>
+                <circle cx="64" cy="54" r="5" fill="url(#n2)" opacity="0.85"/>
+                <circle cx="40" cy="68" r="5" fill="url(#n2)" opacity="0.85"/>
+                <circle cx="16" cy="54" r="5" fill="url(#n2)" opacity="0.85"/>
+                <circle cx="16" cy="26" r="5" fill="url(#n2)" opacity="0.85"/>
+                <line x1="40" y1="40" x2="40" y2="17" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="60" y2="29" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="60" y2="51" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="40" y2="63" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="20" y2="51" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+                <line x1="40" y1="40" x2="20" y2="29" stroke="url(#n2)" stroke-width="1.5" opacity="0.6"/>
+              </svg>
+              <div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;letter-spacing:0.08em;color:#38bdf8;line-height:1.1;">NEXUS</div>
+                <div style="font-size:9px;letter-spacing:0.3em;color:#5eead4;text-transform:uppercase;">ANALYTICS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Light bg -->
+          <div class="logo-cell light-bg">
+            <span class="cell-label" style="color:#94a3b8;">On Light</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="n3" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#0d9488"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="8" fill="url(#n3)"/>
+                <circle cx="40" cy="12" r="5" fill="url(#n3)" opacity="0.85"/>
+                <circle cx="64" cy="26" r="5" fill="url(#n3)" opacity="0.85"/>
+                <circle cx="64" cy="54" r="5" fill="url(#n3)" opacity="0.85"/>
+                <circle cx="40" cy="68" r="5" fill="url(#n3)" opacity="0.85"/>
+                <circle cx="16" cy="54" r="5" fill="url(#n3)" opacity="0.85"/>
+                <circle cx="16" cy="26" r="5" fill="url(#n3)" opacity="0.85"/>
+                <line x1="40" y1="40" x2="40" y2="17" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+                <line x1="40" y1="40" x2="60" y2="29" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+                <line x1="40" y1="40" x2="60" y2="51" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+                <line x1="40" y1="40" x2="40" y2="63" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+                <line x1="40" y1="40" x2="20" y2="51" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+                <line x1="40" y1="40" x2="20" y2="29" stroke="url(#n3)" stroke-width="1.5" opacity="0.7"/>
+              </svg>
+              <div>
+                <div style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;letter-spacing:0.08em;color:#0284c7;">NEXUS</div>
+                <div style="font-size:9px;letter-spacing:0.3em;color:#0d9488;text-transform:uppercase;">ANALYTICS</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 2. DEPLOYKIT ─── -->
+      <div class="logo-section deploy-color">
+        <div class="logo-section-header">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="logo-section-name">DEPLOYKIT</span>
+            <span class="logo-section-tag">Dev Tool</span>
+          </div>
+          <a href="deploykit.html" class="logo-section-link">View Landing Page ↗</a>
+        </div>
+        <div class="logo-variants">
+          <div class="logo-cell">
+            <span class="cell-label">Icon Mark</span>
+            <span class="cell-variant-mark">Dark</span>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="d1" x1="0" y1="80" x2="80" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00ff41"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs>
+              <!-- Hexagonal border -->
+              <polygon points="40,6 68,22 68,58 40,74 12,58 12,22" fill="none" stroke="rgba(0,255,65,0.15)" stroke-width="1.5"/>
+              <!-- Rocket body -->
+              <polygon points="40,14 54,46 40,40 26,46" fill="url(#d1)" opacity="0.95"/>
+              <!-- Fins -->
+              <polygon points="26,46 40,40 32,62" fill="url(#d1)" opacity="0.65"/>
+              <polygon points="54,46 40,40 48,62" fill="url(#d1)" opacity="0.65"/>
+              <!-- Window -->
+              <circle cx="40" cy="32" r="5" fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="2"/>
+              <circle cx="40" cy="32" r="2.5" fill="rgba(0,255,65,0.3)"/>
+              <!-- Exhaust glow -->
+              <ellipse cx="40" cy="66" rx="7" ry="3" fill="url(#d1)" opacity="0.4"/>
+              <ellipse cx="40" cy="68" rx="4" ry="2" fill="url(#d1)" opacity="0.2"/>
+              <!-- Terminal prompt -->
+              <text x="14" y="78" font-family="monospace" font-size="9" fill="url(#d1)" opacity="0.5">&gt;_</text>
+            </svg>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Wordmark</span>
+            <div style="text-align:center;">
+              <div style="font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:600;color:#00ff41;text-shadow:0 0 16px rgba(0,255,65,0.4);letter-spacing:0.06em;">DEPLOY<span style="color:#00d4ff;">KIT</span></div>
+              <div style="font-size:10px;letter-spacing:0.25em;color:rgba(0,255,65,0.5);margin-top:4px;">v2.4.1 — OPEN SOURCE</div>
+            </div>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Combination</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="d2" x1="0" y1="80" x2="80" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#00ff41"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs>
+                <polygon points="40,14 54,46 40,40 26,46" fill="url(#d2)"/>
+                <polygon points="26,46 40,40 32,62" fill="url(#d2)" opacity="0.65"/>
+                <polygon points="54,46 40,40 48,62" fill="url(#d2)" opacity="0.65"/>
+                <circle cx="40" cy="32" r="5" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="2"/>
+              </svg>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:17px;color:#00ff41;letter-spacing:0.06em;">DEPLOY<span style="color:#00d4ff;">KIT</span></div>
+                <div style="font-size:9px;letter-spacing:0.2em;color:rgba(0,255,65,0.45);margin-top:2px;">ZERO DOWNTIME</div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-cell" style="background:#0d1117;">
+            <span class="cell-label" style="color:#8b949e;">GitHub Dark</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="38" height="38" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="40,14 54,46 40,40 26,46" fill="#00ff41"/>
+                <polygon points="26,46 40,40 32,62" fill="#00ff41" opacity="0.6"/>
+                <polygon points="54,46 40,40 48,62" fill="#00ff41" opacity="0.6"/>
+              </svg>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:16px;color:#e6edf3;letter-spacing:0.05em;">deploykit</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 3. AUTHWAVE ─── -->
+      <div class="logo-section auth-color">
+        <div class="logo-section-header">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="logo-section-name">AUTHWAVE</span>
+            <span class="logo-section-tag">API</span>
+          </div>
+          <a href="authwave.html" class="logo-section-link">View Landing Page ↗</a>
+        </div>
+        <div class="logo-variants">
+          <div class="logo-cell">
+            <span class="cell-label">Icon Mark</span>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="a1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="100%" stop-color="#7c3aed"/>
+                </linearGradient>
+                <clipPath id="sc1"><polygon points="40,6 70,20 70,46 40,72 10,46 10,20"/></clipPath>
+              </defs>
+              <!-- Shield -->
+              <polygon points="40,6 70,20 70,46 40,72 10,46 10,20" fill="rgba(99,102,241,0.1)" stroke="url(#a1)" stroke-width="3"/>
+              <!-- Wave inside -->
+              <path d="M12,42 Q20,28 30,42 Q40,56 50,42 Q60,28 68,36" fill="none" stroke="url(#a1)" stroke-width="2.5" stroke-linecap="round" clip-path="url(#sc1)"/>
+              <!-- Lock body -->
+              <rect x="30" y="26" width="20" height="15" rx="3" fill="url(#a1)"/>
+              <!-- Lock arch -->
+              <path d="M30,32 Q30,18 40,18 Q50,18 50,32" fill="none" stroke="url(#a1)" stroke-width="3.5" stroke-linecap="round"/>
+              <!-- Keyhole -->
+              <circle cx="40" cy="32" r="3" fill="rgba(0,0,0,0.4)"/>
+              <rect x="38.5" y="33" width="3" height="4" rx="0.5" fill="rgba(0,0,0,0.4)"/>
+            </svg>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Wordmark</span>
+            <div style="text-align:center;">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#6366f1;">Auth<span style="color:#7c3aed;">Wave</span></div>
+              <div style="font-size:10px;letter-spacing:0.2em;color:rgba(99,102,241,0.5);text-transform:uppercase;margin-top:4px;">Authentication API</div>
+            </div>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Combination</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="a2" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#4f46e5"/>
+                    <stop offset="100%" stop-color="#7c3aed"/>
+                  </linearGradient>
+                  <clipPath id="sc2"><polygon points="40,6 70,20 70,46 40,72 10,46 10,20"/></clipPath>
+                </defs>
+                <polygon points="40,6 70,20 70,46 40,72 10,46 10,20" fill="rgba(99,102,241,0.08)" stroke="url(#a2)" stroke-width="3"/>
+                <path d="M12,42 Q20,28 30,42 Q40,56 50,42 Q60,28 68,36" fill="none" stroke="url(#a2)" stroke-width="2.5" stroke-linecap="round" clip-path="url(#sc2)"/>
+                <rect x="30" y="26" width="20" height="15" rx="3" fill="url(#a2)"/>
+                <path d="M30,32 Q30,18 40,18 Q50,18 50,32" fill="none" stroke="url(#a2)" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="40" cy="32" r="3" fill="rgba(0,0,0,0.35)"/>
+              </svg>
+              <div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.01em;color:#6366f1;">Auth<span style="color:#7c3aed;">Wave</span></div>
+                <div style="font-size:9px;letter-spacing:0.16em;color:rgba(99,102,241,0.5);text-transform:uppercase;">Secure by design</div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-cell light-bg">
+            <span class="cell-label" style="color:#94a3b8;">On Light</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="a3" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#4f46e5"/>
+                    <stop offset="100%" stop-color="#7c3aed"/>
+                  </linearGradient>
+                  <clipPath id="sc3"><polygon points="40,6 70,20 70,46 40,72 10,46 10,20"/></clipPath>
+                </defs>
+                <polygon points="40,6 70,20 70,46 40,72 10,46 10,20" fill="rgba(99,102,241,0.06)" stroke="url(#a3)" stroke-width="3"/>
+                <path d="M12,42 Q20,28 30,42 Q40,56 50,42 Q60,28 68,36" fill="none" stroke="url(#a3)" stroke-width="2.5" stroke-linecap="round" clip-path="url(#sc3)"/>
+                <rect x="30" y="26" width="20" height="15" rx="3" fill="url(#a3)"/>
+                <path d="M30,32 Q30,18 40,18 Q50,18 50,32" fill="none" stroke="url(#a3)" stroke-width="3.5" stroke-linecap="round"/>
+              </svg>
+              <div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:#4f46e5;">Auth<span style="color:#7c3aed;">Wave</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 4. PULSE ─── -->
+      <div class="logo-section pulse-color">
+        <div class="logo-section-header">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="logo-section-name">PULSE</span>
+            <span class="logo-section-tag">Mobile</span>
+          </div>
+          <a href="pulse.html" class="logo-section-link">View Landing Page ↗</a>
+        </div>
+        <div class="logo-variants">
+          <div class="logo-cell">
+            <span class="cell-label">Icon Mark</span>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="p1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#ff6b35"/>
+                  <stop offset="100%" stop-color="#f43f8e"/>
+                </linearGradient>
+              </defs>
+              <!-- Outer circle -->
+              <circle cx="40" cy="40" r="34" fill="none" stroke="url(#p1)" stroke-width="3"/>
+              <!-- Inner glow ring -->
+              <circle cx="40" cy="40" r="26" fill="none" stroke="rgba(255,107,53,0.15)" stroke-width="1"/>
+              <!-- EKG/Heartbeat line crossing through -->
+              <path d="M6,40 L18,40 L22,24 L28,56 L34,16 L40,48 L46,32 L52,40 L60,40 L66,40 L74,40"
+                    fill="none" stroke="url(#p1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Wordmark</span>
+            <div style="text-align:center;">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#ff6b35,#f43f8e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PULSE</div>
+              <div style="font-size:10px;letter-spacing:0.25em;color:rgba(255,107,53,0.5);text-transform:uppercase;margin-top:2px;">Mobile Monitoring</div>
+            </div>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Combination</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <svg width="44" height="44" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="p2" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff6b35"/><stop offset="100%" stop-color="#f43f8e"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="34" fill="none" stroke="url(#p2)" stroke-width="3"/>
+                <path d="M6,40 L18,40 L22,24 L28,56 L34,16 L40,48 L46,32 L52,40 L60,40 L74,40" fill="none" stroke="url(#p2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,#ff6b35,#f43f8e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PULSE</div>
+                <div style="font-size:9px;letter-spacing:0.18em;color:rgba(255,107,53,0.45);text-transform:uppercase;">AI-Powered</div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-cell" style="background:#07020f;">
+            <span class="cell-label" style="color:#6b5f88;">App Dark</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="40" height="40" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="p3" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff6b35"/><stop offset="100%" stop-color="#f43f8e"/></linearGradient></defs>
+                <circle cx="40" cy="40" r="34" fill="rgba(255,107,53,0.08)" stroke="url(#p3)" stroke-width="3"/>
+                <path d="M6,40 L18,40 L22,24 L28,56 L34,16 L40,48 L46,32 L52,40 L60,40 L74,40" fill="none" stroke="url(#p3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:#ff6b35;">PULSE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 5. SCHEMA·GEN ─── -->
+      <div class="logo-section schema-color">
+        <div class="logo-section-header">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <span class="logo-section-name">SCHEMA·GEN</span>
+            <span class="logo-section-tag">Open Source</span>
+          </div>
+          <a href="schemagen.html" class="logo-section-link">View Landing Page ↗</a>
+        </div>
+        <div class="logo-variants">
+          <div class="logo-cell">
+            <span class="cell-label">Icon Mark</span>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="s1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#89b4fa"/>
+                  <stop offset="100%" stop-color="#94e2d5"/>
+                </linearGradient>
+              </defs>
+              <!-- Left brace -->
+              <path d="M26,10 Q16,10 16,20 L16,28 Q16,36 10,36 Q16,36 16,44 L16,52 Q16,62 26,62" stroke="url(#s1)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <!-- Right brace -->
+              <path d="M54,10 Q64,10 64,20 L64,28 Q64,36 70,36 Q64,36 64,44 L64,52 Q64,62 54,62" stroke="url(#s1)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <!-- Lightning bolt in center -->
+              <path d="M46,16 L34,38 L42,38 L34,60 L50,34 L42,34 Z" fill="url(#s1)" opacity="0.95"/>
+            </svg>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Wordmark</span>
+            <div style="text-align:center;font-family:'Fira Code',monospace;">
+              <div style="font-size:18px;font-weight:500;color:#89b4fa;letter-spacing:0.04em;"><span style="color:rgba(137,180,250,0.4)">{</span> schema<span style="color:#94e2d5;">·gen</span> <span style="color:rgba(137,180,250,0.4)">}</span></div>
+              <div style="font-size:9px;letter-spacing:0.22em;color:rgba(137,180,250,0.4);text-transform:uppercase;margin-top:6px;">TypeScript Type Generator</div>
+            </div>
+          </div>
+          <div class="logo-cell">
+            <span class="cell-label">Combination</span>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <svg width="42" height="42" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="s2" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#89b4fa"/><stop offset="100%" stop-color="#94e2d5"/></linearGradient></defs>
+                <path d="M26,10 Q16,10 16,20 L16,28 Q16,36 10,36 Q16,36 16,44 L16,52 Q16,62 26,62" stroke="url(#s2)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M54,10 Q64,10 64,20 L64,28 Q64,36 70,36 Q64,36 64,44 L64,52 Q64,62 54,62" stroke="url(#s2)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M46,16 L34,38 L42,38 L34,60 L50,34 L42,34 Z" fill="url(#s2)" opacity="0.95"/>
+              </svg>
+              <div>
+                <div style="font-family:'Fira Code',monospace;font-size:15px;color:#89b4fa;"><span style="opacity:0.4">{</span> schema<span style="color:#94e2d5;">·gen</span> <span style="opacity:0.4">}</span></div>
+                <div style="font-size:9px;letter-spacing:0.18em;color:rgba(137,180,250,0.4);text-transform:uppercase;margin-top:2px;">v3.1.0 · MIT</div>
+              </div>
+            </div>
+          </div>
+          <div class="logo-cell" style="background:#1e1e2e;">
+            <span class="cell-label" style="color:#6c7086;">Editor Dark</span>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <svg width="38" height="38" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M26,10 Q16,10 16,20 L16,28 Q16,36 10,36 Q16,36 16,44 L16,52 Q16,62 26,62" stroke="#89b4fa" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M54,10 Q64,10 64,20 L64,28 Q64,36 70,36 Q64,36 64,44 L64,52 Q64,62 54,62" stroke="#89b4fa" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <path d="M46,16 L34,38 L42,38 L34,60 L50,34 L42,34 Z" fill="#94e2d5"/>
+              </svg>
+              <div style="font-family:'Fira Code',monospace;font-size:14px;color:#cdd6f4;"><span style="color:#89b4fa">{</span>&nbsp;schema<span style="color:#94e2d5;">·gen</span>&nbsp;<span style="color:#89b4fa">}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.2);color:#38bdf8;">◆</div>
+        <div class="legend-text">
+          <div class="legend-title">Icon Mark</div>
+          <div class="legend-desc">Symbol only — for favicons, app icons, avatars</div>
+        </div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(232,97,157,0.08);border-color:rgba(232,97,157,0.2);color:#e8619d;">T</div>
+        <div class="legend-text">
+          <div class="legend-title">Wordmark</div>
+          <div class="legend-desc">Typographic name — for headers, banners</div>
+        </div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(94,234,212,0.08);border-color:rgba(94,234,212,0.2);color:#5eead4;">⊕</div>
+        <div class="legend-text">
+          <div class="legend-title">Combination Mark</div>
+          <div class="legend-desc">Symbol + wordmark — primary brand logo</div>
+        </div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-swatch" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:#ffffff;">◻</div>
+        <div class="legend-text">
+          <div class="legend-title">Context Variant</div>
+          <div class="legend-desc">Adapted for different background contexts</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span>© 2026 — Brand Identities by <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>All logos are pure SVG — infinitely scalable</span>
+    </footer>
+
+    <script>
+      const cursor = document.getElementById('cursor');
+      const ring = document.getElementById('cursor-ring');
+      let mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+      (function anim() {
+        cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+        rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+        requestAnimationFrame(anim);
+      })();
+    </script>
+  </body>
+</html>

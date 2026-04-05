@@ -1,0 +1,971 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeployKit — Zero-Downtime Deployments</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #0d1117;
+        --bg2: #010409;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: rgba(0, 255, 65, 0.12);
+        --green: #00ff41;
+        --green-dim: #00b84c;
+        --cyan: #00d4ff;
+        --yellow: #ffd60a;
+        --red: #ff4b4b;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg2);
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        overflow-x: hidden;
+      }
+
+      /* ── SCANLINES ── */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px
+        );
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 200;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 48px;
+        height: 56px;
+        background: rgba(1, 4, 9, 0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: var(--green);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .logo-svg { width: 30px; height: 30px; }
+
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover { color: var(--green); }
+
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        border: 1px solid var(--green);
+        color: var(--green);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        padding: 8px 18px;
+        text-decoration: none;
+        transition: background 0.2s, box-shadow 0.2s;
+      }
+      .nav-cta:hover {
+        background: rgba(0, 255, 65, 0.08);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 80px 48px 60px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Matrix rain background effect */
+      .matrix-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .matrix-col {
+        position: absolute;
+        top: -100%;
+        writing-mode: vertical-rl;
+        font-size: 14px;
+        color: var(--green);
+        opacity: 0.04;
+        animation: fall linear infinite;
+        letter-spacing: 8px;
+        user-select: none;
+      }
+      @keyframes fall {
+        from { top: -100%; }
+        to { top: 110%; }
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
+
+      .hero-prompt {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 20px;
+      }
+      .hero-prompt .ps { color: var(--green); }
+      .hero-prompt .cmd { color: var(--cyan); }
+
+      .hero-ascii {
+        font-size: 9px;
+        line-height: 1.15;
+        color: var(--green);
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+        margin-bottom: 24px;
+        white-space: pre;
+      }
+
+      .hero-tagline {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(28px, 3.5vw, 46px);
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 16px;
+        color: var(--text);
+      }
+      .hero-tagline .hl { color: var(--green); text-shadow: 0 0 16px rgba(0,255,65,0.3); }
+
+      .hero-desc {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.85;
+        margin-bottom: 36px;
+        max-width: 480px;
+      }
+
+      .hero-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 36px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--muted);
+        border: 1px solid var(--surface2);
+        background: var(--surface);
+        padding: 5px 12px;
+        border-radius: 100px;
+      }
+      .badge.green { color: var(--green); border-color: rgba(0,255,65,0.2); background: rgba(0,255,65,0.04); }
+      .badge.yellow { color: var(--yellow); border-color: rgba(255,214,10,0.2); background: rgba(255,214,10,0.04); }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn-green {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--green);
+        color: #000;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 12px 24px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .btn-green:hover {
+        box-shadow: 0 0 32px rgba(0, 255, 65, 0.5);
+        transform: translateY(-1px);
+      }
+      .btn-outline-green {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: var(--green);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        padding: 12px 24px;
+        border: 1px solid var(--border);
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .btn-outline-green:hover {
+        border-color: var(--green);
+        background: rgba(0, 255, 65, 0.04);
+      }
+
+      /* ── TERMINAL WINDOW ── */
+      .terminal {
+        background: var(--bg2);
+        border: 1px solid rgba(0, 255, 65, 0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 60px rgba(0, 255, 65, 0.08), 0 32px 64px rgba(0,0,0,0.6);
+      }
+      .term-titlebar {
+        background: var(--surface);
+        border-bottom: 1px solid rgba(0, 255, 65, 0.12);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .term-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+      }
+      .term-dot.red { background: #ff5f57; }
+      .term-dot.yellow { background: #febc2e; }
+      .term-dot.green { background: #28c840; }
+      .term-title {
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+      }
+
+      .term-body {
+        padding: 20px;
+        font-size: 13px;
+        line-height: 1.7;
+        min-height: 320px;
+      }
+
+      .term-line { margin-bottom: 2px; }
+      .t-prompt { color: var(--green); }
+      .t-cmd { color: var(--text); }
+      .t-comment { color: var(--muted); }
+      .t-success { color: var(--green); }
+      .t-info { color: var(--cyan); }
+      .t-warn { color: var(--yellow); }
+      .t-error { color: var(--red); }
+      .t-dim { color: rgba(139, 148, 158, 0.5); }
+
+      .cursor-blink {
+        display: inline-block;
+        width: 8px;
+        height: 14px;
+        background: var(--green);
+        animation: blink 1s step-end infinite;
+        vertical-align: text-bottom;
+        margin-left: 2px;
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      /* ── STATS BAR ── */
+      .stats-bar {
+        padding: 40px 48px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 32px;
+      }
+      .stat-item { text-align: center; }
+      .stat-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--green);
+        text-shadow: 0 0 16px rgba(0, 255, 65, 0.3);
+        margin-bottom: 4px;
+      }
+      .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+      /* ── FEATURES ── */
+      #features {
+        padding: 80px 48px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .section-tag {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--green);
+        margin-bottom: 12px;
+      }
+      .section-tag::before { content: ''; display: none; }
+
+      .section-h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(28px, 4vw, 48px);
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 56px;
+        color: var(--text);
+      }
+
+      .features-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+      .feat {
+        background: var(--bg);
+        padding: 32px;
+        position: relative;
+        transition: background 0.25s;
+      }
+      .feat:hover { background: var(--surface); }
+      .feat-num {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        margin-bottom: 16px;
+      }
+      .feat-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--green);
+        margin-bottom: 10px;
+        letter-spacing: 0.04em;
+      }
+      .feat-desc {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.85;
+      }
+      .feat-cmd {
+        display: inline-block;
+        font-size: 11px;
+        color: var(--cyan);
+        background: rgba(0, 212, 255, 0.06);
+        border: 1px solid rgba(0, 212, 255, 0.15);
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-top: 12px;
+      }
+
+      /* ── INSTALL ── */
+      #install {
+        padding: 80px 48px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .install-inner {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .install-h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(28px, 3.5vw, 44px);
+        font-weight: 800;
+        margin-bottom: 16px;
+        color: var(--text);
+      }
+      .install-sub {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 40px;
+        line-height: 1.8;
+      }
+
+      .install-block {
+        background: var(--bg2);
+        border: 1px solid rgba(0, 255, 65, 0.15);
+        border-radius: 8px;
+        overflow: hidden;
+        text-align: left;
+        margin-bottom: 16px;
+      }
+      .install-header {
+        background: var(--surface2);
+        border-bottom: 1px solid rgba(0, 255, 65, 0.12);
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .install-lang {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .install-copy {
+        font-size: 10px;
+        color: var(--green);
+        cursor: pointer;
+        border: 1px solid rgba(0,255,65,0.2);
+        padding: 2px 10px;
+        background: transparent;
+        font-family: inherit;
+        letter-spacing: 0.1em;
+        transition: background 0.2s;
+      }
+      .install-copy:hover { background: rgba(0,255,65,0.08); }
+      .install-code {
+        padding: 20px 24px;
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      .ic-comment { color: var(--muted); }
+      .ic-cmd { color: var(--text); }
+      .ic-green { color: var(--green); }
+      .ic-cyan { color: var(--cyan); }
+      .ic-flag { color: var(--yellow); }
+
+      /* ── GITHUB CARD ── */
+      .github-card {
+        max-width: 600px;
+        margin: 40px auto 0;
+        background: var(--bg2);
+        border: 1px solid rgba(0, 255, 65, 0.15);
+        border-radius: 8px;
+        padding: 28px 32px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        text-decoration: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .github-card:hover {
+        border-color: var(--green);
+        box-shadow: 0 0 32px rgba(0, 255, 65, 0.1);
+      }
+      .gh-icon { font-size: 40px; }
+      .gh-info {}
+      .gh-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .gh-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+      .gh-stats {
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        text-align: right;
+      }
+      .gh-stat { font-size: 12px; color: var(--muted); }
+      .gh-stat strong { color: var(--yellow); }
+
+      /* ── CTA ── */
+      #cta {
+        padding: 100px 48px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      #cta::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        width: 600px; height: 300px;
+        background: radial-gradient(ellipse, rgba(0,255,65,0.04) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .cta-label {
+        font-size: 11px;
+        color: var(--green);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+      }
+      .cta-h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(32px, 5vw, 60px);
+        font-weight: 800;
+        line-height: 1.05;
+        color: var(--text);
+        margin-bottom: 20px;
+      }
+      .cta-h2 span { color: var(--green); text-shadow: 0 0 24px rgba(0,255,65,0.3); }
+      .cta-sub {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.8;
+        max-width: 480px;
+        margin: 0 auto 40px;
+      }
+      .cta-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        padding: 24px 48px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        background: var(--bg2);
+      }
+      footer a { color: var(--green); text-decoration: none; }
+
+      /* ── FORM ── */
+      #contact-form {
+        padding: 80px 48px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .form-wrap {
+        max-width: 1100px; margin: 0 auto;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 64px; align-items: start;
+      }
+      .form-left-info {}
+      .form-section-tag { font-size: 11px; color: var(--green); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px; }
+      .form-left-info h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(26px, 3vw, 42px); font-weight: 800; line-height: 1.1;
+        color: var(--text); margin-bottom: 16px;
+      }
+      .form-left-info h2 span { color: var(--green); }
+      .form-left-info p { font-size: 14px; color: var(--muted); line-height: 1.85; margin-bottom: 28px; }
+      .form-perks { display: flex; flex-direction: column; gap: 10px; }
+      .form-perk { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+      .form-perk::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+      .form-terminal {
+        background: var(--bg2);
+        border: 1px solid rgba(0,255,65,0.2);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 40px rgba(0,255,65,0.06);
+      }
+      .form-term-bar {
+        background: var(--surface2);
+        border-bottom: 1px solid rgba(0,255,65,0.12);
+        padding: 10px 16px;
+        display: flex; align-items: center; gap: 8px;
+      }
+      .ftb-dot { width: 10px; height: 10px; border-radius: 50%; }
+      .ftb-r { background: #ff5f57; }
+      .ftb-y { background: #febc2e; }
+      .ftb-g { background: #28c840; }
+      .ftb-title { margin: 0 auto; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+      .form-term-body { padding: 28px; }
+      .term-form-line { margin-bottom: 18px; }
+      .term-form-prompt {
+        font-size: 12px; color: var(--muted); margin-bottom: 6px;
+        letter-spacing: 0.08em;
+      }
+      .term-form-prompt span { color: var(--green); }
+      .term-input, .term-select {
+        width: 100%;
+        background: rgba(0,255,65,0.04);
+        border: 1px solid rgba(0,255,65,0.15);
+        color: var(--green);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px; padding: 10px 14px;
+        outline: none;
+        border-radius: 4px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        -webkit-appearance: none;
+      }
+      .term-input::placeholder { color: rgba(0,255,65,0.25); }
+      .term-input:focus, .term-select:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(0,255,65,0.1);
+      }
+      .term-select option { background: #0d1117; color: var(--text); }
+      .term-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .form-submit-term {
+        width: 100%; margin-top: 10px;
+        background: var(--green);
+        color: #000;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px; font-weight: 700;
+        letter-spacing: 0.1em; padding: 13px 20px;
+        border: none; cursor: pointer;
+        transition: box-shadow 0.2s, transform 0.2s;
+        border-radius: 4px;
+      }
+      .form-submit-term:hover {
+        box-shadow: 0 0 24px rgba(0,255,65,0.45);
+        transform: translateY(-1px);
+      }
+      .form-note-term { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; letter-spacing: 0.06em; }
+
+      @media (max-width: 900px) {
+        nav { padding: 0 24px; }
+        .nav-links { display: none; }
+        #hero { padding: 80px 24px 48px; }
+        .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+        .hero-ascii { font-size: 7px; }
+        .stats-bar { grid-template-columns: repeat(2, 1fr); padding: 32px 24px; }
+        #features, #install, #cta, #contact-form { padding: 64px 24px; }
+        .features-list { grid-template-columns: 1fr; }
+        .form-wrap { grid-template-columns: 1fr; gap: 40px; }
+        footer { padding: 20px 24px; flex-direction: column; gap: 6px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- MATRIX BG -->
+    <div class="matrix-bg" aria-hidden="true">
+      <span class="matrix-col" style="left:5%;animation-duration:8s;animation-delay:-2s">10110100011010</span>
+      <span class="matrix-col" style="left:12%;animation-duration:10s;animation-delay:-5s">01011001101001</span>
+      <span class="matrix-col" style="left:22%;animation-duration:7s;animation-delay:-1s">11001010110100</span>
+      <span class="matrix-col" style="left:35%;animation-duration:12s;animation-delay:-3s">00110101001011</span>
+      <span class="matrix-col" style="left:48%;animation-duration:9s;animation-delay:-7s">10101100110010</span>
+      <span class="matrix-col" style="left:62%;animation-duration:11s;animation-delay:-4s">01100101010110</span>
+      <span class="matrix-col" style="left:75%;animation-duration:8s;animation-delay:-6s">11010010110101</span>
+      <span class="matrix-col" style="left:88%;animation-duration:10s;animation-delay:-2s">00101101011010</span>
+    </div>
+
+    <!-- NAV -->
+    <nav>
+      <a href="cyberpunk.html" class="nav-logo">
+        <svg class="logo-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="30,4 52,16 52,44 30,56 8,44 8,16" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.5"/>
+          <polygon points="30,12 44,20 44,40 30,48 16,40 16,20" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.25"/>
+          <polygon points="30,6 14,32 46,32" fill="#00ff41" opacity="0.9"/>
+          <rect x="24" y="34" width="12" height="16" rx="1" fill="#00ff41" opacity="0.6"/>
+          <text x="6" y="58" font-family="monospace" font-size="7" fill="#00ff41" opacity="0.5">&gt;_</text>
+        </svg>
+        DEPLOYKIT
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+        <li><a href="#" >Docs</a></li>
+      </ul>
+      <a href="https://github.com" class="nav-cta">⭐ 8k Stars</a>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="hero-prompt">
+            <span class="ps">$</span> <span class="cmd">deploykit deploy --env production</span>
+          </div>
+          <div class="hero-ascii">
+  ██████╗ ███████╗██████╗ ██╗      ██████╗ ██╗   ██╗
+  ██╔══██╗██╔════╝██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝
+  ██║  ██║█████╗  ██████╔╝██║     ██║   ██║ ╚████╔╝ 
+  ██║  ██║██╔══╝  ██╔═══╝ ██║     ██║   ██║  ╚██╔╝  
+  ██████╔╝███████╗██║     ███████╗╚██████╔╝   ██║   
+  ╚═════╝ ╚══════╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝   
+          K I T  —  v2.4.1</div>
+          <h1 class="hero-tagline">
+            Deploy with <span class="hl">zero downtime.</span><br>
+            Roll back in <span class="hl">3 seconds.</span>
+          </h1>
+          <p class="hero-desc">
+            The TypeScript-powered CLI that makes production deployments boring. Automatic health checks, Slack alerts, and instant rollback — so you can ship fast without waking up at 3am.
+          </p>
+          <div class="hero-badges">
+            <span class="badge green">✓ Zero Downtime</span>
+            <span class="badge green">✓ Auto Rollback</span>
+            <span class="badge yellow">★ 8k GitHub Stars</span>
+            <span class="badge">TypeScript</span>
+          </div>
+          <div class="hero-actions">
+            <a href="#install" class="btn-green">$ npm install deploykit</a>
+            <a href="cyberpunk.html" class="btn-outline-green">← Portfolio</a>
+          </div>
+        </div>
+
+        <!-- Terminal mockup -->
+        <div class="terminal">
+          <div class="term-titlebar">
+            <span class="term-dot red"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+            <span class="term-title">bash — deploykit</span>
+          </div>
+          <div class="term-body">
+            <div class="term-line"><span class="t-prompt">$</span> <span class="t-cmd">deploykit deploy --env production --strategy canary</span></div>
+            <div class="term-line t-comment"># DeployKit v2.4.1 — Zero-downtime deploy engine</div>
+            <div class="term-line">&nbsp;</div>
+            <div class="term-line t-info">→ Connecting to production cluster...</div>
+            <div class="term-line t-success">✓ Cluster healthy (3 nodes)</div>
+            <div class="term-line t-info">→ Building Docker image: api:sha-f3a2c91</div>
+            <div class="term-line t-success">✓ Build complete (18.2s)</div>
+            <div class="term-line t-info">→ Pushing to registry...</div>
+            <div class="term-line t-success">✓ Push complete</div>
+            <div class="term-line">&nbsp;</div>
+            <div class="term-line t-warn">⚡ Canary rollout: 10% → 25% → 50% → 100%</div>
+            <div class="term-line t-dim">  [████░░░░░░░░░░░░░░░░] 25% traffic shifted</div>
+            <div class="term-line t-info">→ Health check: GET /health (timeout: 10s)</div>
+            <div class="term-line t-success">✓ 200 OK — p99: 42ms</div>
+            <div class="term-line t-dim">  [████████░░░░░░░░░░░░] 50% traffic shifted</div>
+            <div class="term-line t-success">✓ 200 OK — p99: 38ms</div>
+            <div class="term-line t-dim">  [████████████████████] 100% traffic shifted</div>
+            <div class="term-line">&nbsp;</div>
+            <div class="term-line t-success">✓ Deploy complete in 2m 14s</div>
+            <div class="term-line t-success">✓ Slack notification sent #deployments</div>
+            <div class="term-line t-info">→ Rollback available: deploykit rollback api</div>
+            <div class="term-line">&nbsp;</div>
+            <div class="term-line"><span class="t-prompt">$</span> <span class="cursor-blink"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-val">8k+</div>
+        <div class="stat-label">GitHub Stars</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">3s</div>
+        <div class="stat-label">Avg Rollback Time</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">0</div>
+        <div class="stat-label">Downtime Deploys</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val">450+</div>
+        <div class="stat-label">Contributors</div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="section-tag">capabilities</div>
+      <h2 class="section-h2">Everything a deploy<br>could ever need</h2>
+      <div class="features-list">
+        <div class="feat">
+          <div class="feat-num">01 —</div>
+          <div class="feat-title">Zero-Downtime Strategies</div>
+          <p class="feat-desc">Choose from blue-green, canary, or rolling deployments. Traffic shifting with configurable step percentages and automatic promotion based on health checks.</p>
+          <span class="feat-cmd">--strategy canary</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">02 —</div>
+          <div class="feat-title">Instant Rollback</div>
+          <p class="feat-desc">One command, 3 seconds. DeployKit preserves the last 10 deploy snapshots. Rollback detects the last healthy state automatically when anomalies spike.</p>
+          <span class="feat-cmd">deploykit rollback</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">03 —</div>
+          <div class="feat-title">Deep Health Checks</div>
+          <p class="feat-desc">Beyond just HTTP 200. Monitor p99 latency, error rates, CPU/memory thresholds, and custom metrics from Prometheus. Configurable per environment.</p>
+          <span class="feat-cmd">--health-check ./probe.sh</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">04 —</div>
+          <div class="feat-title">Slack & PagerDuty</div>
+          <p class="feat-desc">Real-time notifications at every deploy stage. Failed deploys trigger PagerDuty alerts with full context. Your on-call rotation will thank you.</p>
+          <span class="feat-cmd">--notify slack,pagerduty</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">05 —</div>
+          <div class="feat-title">Multi-Cloud</div>
+          <p class="feat-desc">Native support for AWS ECS/EKS, GCP GKE, DigitalOcean Kubernetes, and bare-metal. Single config, deploy anywhere. No vendor lock-in.</p>
+          <span class="feat-cmd">--target k8s://prod-cluster</span>
+        </div>
+        <div class="feat">
+          <div class="feat-num">06 —</div>
+          <div class="feat-title">GitHub Actions Native</div>
+          <p class="feat-desc">Drop-in Actions step with OIDC authentication. No secrets sprawl — uses short-lived tokens. First-class support for pull request preview environments.</p>
+          <span class="feat-cmd">uses: deploykit/action@v2</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section id="install">
+      <div class="install-inner">
+        <h2 class="install-h2">Up and running<br>in 60 seconds</h2>
+        <p class="install-sub">Install globally, or add as a project dependency. Works with any Docker-based application.</p>
+
+        <div class="install-block">
+          <div class="install-header">
+            <span class="install-lang">Shell</span>
+            <button class="install-copy" onclick="navigator.clipboard.writeText('npm install -g deploykit')">COPY</button>
+          </div>
+          <div class="install-code">
+            <div><span class="ic-comment"># Install globally</span></div>
+            <div><span class="t-prompt">$</span> npm install <span class="ic-flag">-g</span> <span class="ic-green">deploykit</span></div>
+            <div>&nbsp;</div>
+            <div><span class="ic-comment"># Or as dev dependency</span></div>
+            <div><span class="t-prompt">$</span> npm install <span class="ic-flag">--save-dev</span> <span class="ic-green">deploykit</span></div>
+            <div>&nbsp;</div>
+            <div><span class="ic-comment"># Initialize in your project</span></div>
+            <div><span class="t-prompt">$</span> deploykit <span class="ic-cyan">init</span></div>
+            <div><span class="t-success">✓ Created deploykit.config.yaml</span></div>
+            <div>&nbsp;</div>
+            <div><span class="ic-comment"># Your first deploy</span></div>
+            <div><span class="t-prompt">$</span> deploykit <span class="ic-cyan">deploy</span> <span class="ic-flag">--env</span> staging</div>
+          </div>
+        </div>
+
+        <a href="https://github.com" class="github-card">
+          <span class="gh-icon">📦</span>
+          <div class="gh-info">
+            <div class="gh-name">deploykit/deploykit</div>
+            <div class="gh-desc">Zero-downtime CLI deploy engine written in TypeScript. The last deploy tool you'll ever need.</div>
+          </div>
+          <div class="gh-stats">
+            <span class="gh-stat">⭐ <strong>8,241</strong></span>
+            <span class="gh-stat">🍴 <strong>891</strong></span>
+            <span class="gh-stat">🐛 <strong>12 open</strong></span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section id="contact-form">
+      <div class="form-wrap">
+        <div class="form-left-info">
+          <div class="form-section-tag">early access</div>
+          <h2>Join the<br><span>waitlist.</span></h2>
+          <p>DeployKit is free and open source. Drop your details to get notified when new releases drop, get access to the private beta channel, and join the Discord.</p>
+          <div class="form-perks">
+            <div class="form-perk">Early access to v3.0 canary releases</div>
+            <div class="form-perk">Invite to private #deploykit Discord channel</div>
+            <div class="form-perk">Monthly changelog directly in your inbox</div>
+            <div class="form-perk">Help shape the roadmap with direct feedback</div>
+          </div>
+        </div>
+
+        <div class="form-terminal">
+          <div class="form-term-bar">
+            <span class="ftb-dot ftb-r"></span>
+            <span class="ftb-dot ftb-y"></span>
+            <span class="ftb-dot ftb-g"></span>
+            <span class="ftb-title">deploykit — subscribe</span>
+          </div>
+          <div class="form-term-body">
+            <form onsubmit="handleSubmit(event)">
+              <div class="term-row">
+                <div class="term-form-line">
+                  <div class="term-form-prompt">Name</div>
+                  <input type="text" class="term-input" placeholder="Your name" required />
+                </div>
+                <div class="term-form-line">
+                  <div class="term-form-prompt">GitHub Handle</div>
+                  <input type="text" class="term-input" placeholder="@username" />
+                </div>
+              </div>
+              <div class="term-form-line">
+                <div class="term-form-prompt">Work Email</div>
+                <input type="email" class="term-input" placeholder="you@company.com" required />
+              </div>
+              <div class="term-row">
+                <div class="term-form-line">
+                  <div class="term-form-prompt">Deploy Target</div>
+                  <select class="term-select term-input">
+                    <option value="" disabled selected>Select</option>
+                    <option>Kubernetes</option>
+                    <option>Docker Swarm</option>
+                    <option>AWS EC2 / ECS</option>
+                    <option>GCP / GKE</option>
+                    <option>Bare Metal</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="term-form-line">
+                  <div class="term-form-prompt">Team Size</div>
+                  <select class="term-select term-input">
+                    <option value="" disabled selected>Select</option>
+                    <option>Solo</option>
+                    <option>2 – 10</option>
+                    <option>11 – 50</option>
+                    <option>50+</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="form-submit-term">Subscribe for Early Access</button>
+              <p class="form-note-term">No spam · Unsubscribe anytime · Open source forever</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>DeployKit — Open Source · MIT License · <a href="cyberpunk.html">by Mayur C Dhage</a></span>
+      <span>Built with TypeScript · Node.js · Docker · GitHub Actions</span>
+    </footer>
+
+    <script>
+      function handleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('.form-submit-term');
+        btn.textContent = '✓ subscribed — welcome aboard';
+        btn.style.background = '#00b84c';
+        btn.disabled = true;
+        e.target.reset();
+        setTimeout(() => { btn.textContent = '$ ./subscribe --notify-me'; btn.style.background = ''; btn.disabled = false; }, 4000);
+      }
+    </script>
+  </body>
+</html>

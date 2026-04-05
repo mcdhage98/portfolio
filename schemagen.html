@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SchemaGen — TypeScript Types from Any API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #1e1e2e;
+        --bg2: #181825;
+        --bg3: #11111b;
+        --surface: #313244;
+        --surface2: #45475a;
+        --blue: #89b4fa;
+        --teal: #94e2d5;
+        --green: #a6e3a1;
+        --yellow: #f9e2af;
+        --orange: #fab387;
+        --red: #f38ba8;
+        --pink: #f5c2e7;
+        --purple: #cba6f7;
+        --text: #cdd6f4;
+        --subtext: #a6adc8;
+        --muted: #6c7086;
+        --border: rgba(137, 180, 250, 0.12);
+        --border2: rgba(137, 180, 250, 0.06);
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg3);
+        color: var(--text);
+        font-family: 'Manrope', sans-serif;
+        overflow-x: hidden;
+        font-size: 16px;
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 52px;
+        height: 56px;
+        background: rgba(24, 24, 37, 0.92);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .nav-logo-icon { width: 28px; height: 28px; }
+      .nav-logo-text {
+        font-family: 'Fira Code', monospace;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .nav-logo-text .blue { color: var(--blue); }
+      .nav-logo-text .teal { color: var(--teal); }
+
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--subtext);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .nav-links a:hover { color: var(--text); }
+
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--blue);
+        color: var(--bg3);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 8px 18px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .nav-cta:hover {
+        box-shadow: 0 0 20px rgba(137, 180, 250, 0.35);
+        transform: translateY(-1px);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: 0;
+        padding-top: 56px;
+      }
+
+      .hero-left {
+        padding: 80px 52px;
+        border-right: 1px solid var(--border);
+        min-height: calc(100vh - 56px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        color: var(--teal);
+        background: rgba(148, 226, 213, 0.06);
+        border: 1px solid rgba(148, 226, 213, 0.15);
+        padding: 5px 14px;
+        border-radius: 4px;
+        margin-bottom: 28px;
+      }
+      .tag-dot { width: 6px; height: 6px; background: var(--teal); border-radius: 50%; }
+
+      .hero-h1 {
+        font-size: clamp(36px, 4.5vw, 60px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+        color: var(--text);
+        margin-bottom: 20px;
+      }
+      .hero-h1 .blue { color: var(--blue); }
+      .hero-h1 .teal { color: var(--teal); }
+
+      .hero-desc {
+        font-size: 16px;
+        color: var(--subtext);
+        line-height: 1.8;
+        margin-bottom: 36px;
+        max-width: 440px;
+      }
+
+      .hero-install {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px 20px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .install-cmd {
+        font-family: 'Fira Code', monospace;
+        font-size: 14px;
+        color: var(--text);
+      }
+      .install-cmd .green { color: var(--green); }
+      .install-cmd .blue { color: var(--blue); }
+      .copy-btn {
+        font-family: 'Fira Code', monospace;
+        font-size: 11px;
+        color: var(--muted);
+        background: transparent;
+        border: 1px solid var(--border);
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .copy-btn:hover { color: var(--blue); border-color: rgba(137,180,250,0.3); }
+
+      .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+      }
+      .btn-blue {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--blue);
+        color: var(--bg3);
+        font-size: 13px;
+        font-weight: 800;
+        padding: 11px 22px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .btn-blue:hover {
+        box-shadow: 0 0 20px rgba(137,180,250,0.35);
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: transparent;
+        color: var(--subtext);
+        font-size: 13px;
+        font-weight: 600;
+        padding: 11px 22px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: rgba(137,180,250,0.2);
+      }
+
+      .hero-stats {
+        display: flex;
+        gap: 32px;
+        padding-top: 32px;
+        border-top: 1px solid var(--border2);
+      }
+      .hs-item {}
+      .hs-val {
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--blue);
+        margin-bottom: 3px;
+        line-height: 1;
+      }
+      .hs-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+      /* ── CODE EDITOR PANEL ── */
+      .hero-right {
+        background: var(--bg2);
+        min-height: calc(100vh - 56px);
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        overflow: hidden;
+      }
+
+      .editor-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 0;
+      }
+      .editor-tab {
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        padding: 8px 20px;
+        color: var(--muted);
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s;
+      }
+      .editor-tab.active {
+        color: var(--text);
+        border-bottom-color: var(--blue);
+        background: rgba(137,180,250,0.05);
+      }
+      .editor-tab .ext-ts { color: var(--blue); }
+      .editor-tab .ext-json { color: var(--yellow); }
+
+      .editor-body {
+        flex: 1;
+        padding: 20px;
+        font-family: 'Fira Code', monospace;
+        font-size: 13px;
+        line-height: 1.8;
+        overflow: auto;
+      }
+      .editor-body .ln {
+        display: inline-block;
+        width: 28px;
+        color: var(--muted);
+        text-align: right;
+        margin-right: 16px;
+        user-select: none;
+        font-size: 12px;
+      }
+
+      /* Syntax tokens */
+      .k { color: var(--purple); }   /* keywords */
+      .t { color: var(--blue); }     /* types */
+      .s { color: var(--green); }    /* strings */
+      .n { color: var(--text); }     /* identifiers */
+      .p { color: var(--teal); }     /* properties */
+      .c { color: var(--muted); font-style: italic; }  /* comments */
+      .num { color: var(--orange); } /* numbers */
+      .d { color: var(--subtext); }  /* decorators */
+      .fn { color: var(--yellow); }  /* functions */
+      .op { color: var(--red); }     /* operators */
+
+      .divider-line { height: 2px; background: var(--border2); }
+
+      .editor-before {
+        background: var(--bg3);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        padding: 16px;
+        margin-bottom: 8px;
+      }
+      .editor-after {
+        background: rgba(166, 227, 161, 0.04);
+        border-radius: 8px;
+        border: 1px solid rgba(166, 227, 161, 0.15);
+        padding: 16px;
+      }
+      .panel-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .panel-label .arrow { color: var(--teal); }
+      .panel-label .dot-red { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+      .panel-label .dot-green { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+      /* ── HOW IT WORKS ── */
+      #how {
+        padding: 100px 52px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .section-tag {
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        color: var(--teal);
+        margin-bottom: 14px;
+      }
+      .section-tag::before { content: ''; display: none; }
+      .section-h2 {
+        font-size: clamp(30px, 4vw, 52px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 64px;
+        color: var(--text);
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+      }
+      .step {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.2s;
+      }
+      .step:hover { border-color: rgba(137,180,250,0.25); }
+      .step-num {
+        font-family: 'Fira Code', monospace;
+        font-size: 48px;
+        font-weight: 600;
+        color: rgba(137, 180, 250, 0.08);
+        line-height: 1;
+        position: absolute;
+        top: 16px;
+        right: 20px;
+      }
+      .step-icon {
+        width: 44px; height: 44px;
+        background: rgba(137,180,250,0.08);
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+      .step-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+      }
+      .step-desc {
+        font-size: 14px;
+        color: var(--subtext);
+        line-height: 1.75;
+      }
+      .step-cmd {
+        display: inline-block;
+        font-family: 'Fira Code', monospace;
+        font-size: 12px;
+        color: var(--teal);
+        background: rgba(148,226,213,0.06);
+        border: 1px solid rgba(148,226,213,0.15);
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin-top: 14px;
+      }
+
+      /* ── SUPPORT TABLE ── */
+      #support {
+        padding: 80px 52px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .support-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .support-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 56px;
+      }
+      .support-card {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 24px;
+        transition: border-color 0.2s;
+      }
+      .support-card:hover { border-color: rgba(137,180,250,0.2); }
+      .sc-icon { font-size: 32px; margin-bottom: 14px; }
+      .sc-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+        letter-spacing: -0.01em;
+      }
+      .sc-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+      .sc-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-family: 'Fira Code', monospace;
+      }
+      .badge-ts { background: rgba(137,180,250,0.12); color: var(--blue); }
+      .badge-new { background: rgba(166,227,161,0.12); color: var(--green); }
+      .badge-gql { background: rgba(203,166,247,0.12); color: var(--purple); }
+      .badge-stable { background: rgba(148,226,213,0.12); color: var(--teal); }
+
+      /* ── CTA ── */
+      #cta {
+        padding: 120px 52px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      #cta::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        width: 700px; height: 400px;
+        background: radial-gradient(ellipse, rgba(137,180,250,0.06) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .cta-eyebrow {
+        font-family: 'Fira Code', monospace;
+        font-size: 13px;
+        color: var(--teal);
+        margin-bottom: 20px;
+      }
+      .cta-eyebrow::before { content: ''; display: none; }
+      .cta-h2 {
+        font-size: clamp(32px, 5vw, 64px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+        margin-bottom: 20px;
+        color: var(--text);
+      }
+      .cta-h2 .blue { color: var(--blue); }
+      .cta-h2 .teal { color: var(--teal); }
+      .cta-sub {
+        font-size: 17px;
+        color: var(--subtext);
+        max-width: 500px;
+        margin: 0 auto 44px;
+        line-height: 1.8;
+      }
+      .cta-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .cta-note {
+        margin-top: 20px;
+        font-family: 'Fira Code', monospace;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .cta-note .green { color: var(--green); }
+
+      /* ── FOOTER ── */
+      footer {
+        padding: 24px 52px;
+        border-top: 1px solid var(--border);
+        background: var(--bg2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: var(--muted);
+        font-family: 'Fira Code', monospace;
+      }
+      footer a { color: var(--subtext); text-decoration: none; }
+      footer a:hover { color: var(--blue); }
+
+      /* ── FORM ── */
+      #contact-form {
+        padding: 96px 56px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .form-wrap {
+        max-width: 1100px; margin: 0 auto;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 64px; align-items: start;
+      }
+      .form-left-info {}
+      .form-badge {
+        display: inline-block; font-size: 11px; font-weight: 700;
+        letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--blue); background: rgba(137,180,250,0.08);
+        border: 1px solid rgba(137,180,250,0.2);
+        padding: 5px 14px; border-radius: 4px; margin-bottom: 20px;
+        font-family: 'Fira Code', monospace;
+      }
+      .form-left-info h2 {
+        font-size: clamp(26px, 3vw, 44px); font-weight: 800;
+        line-height: 1.1; letter-spacing: -0.02em;
+        color: var(--text); margin-bottom: 16px;
+        font-family: 'Manrope', sans-serif;
+      }
+      .form-left-info h2 .blue { color: var(--blue); }
+      .form-left-info h2 .teal { color: var(--teal); }
+      .form-left-info p { font-size: 15px; color: var(--muted); line-height: 1.85; margin-bottom: 32px; }
+      .form-perks { display: flex; flex-direction: column; gap: 10px; }
+      .form-perk {
+        font-size: 14px; color: var(--muted);
+        display: flex; align-items: center; gap: 8px;
+      }
+      .form-perk::before {
+        content: '✓'; color: var(--teal);
+        font-weight: 700; flex-shrink: 0;
+      }
+
+      .form-editor {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px; overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      }
+      .fed-titlebar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 14px;
+      }
+      .fed-dot { width: 10px; height: 10px; border-radius: 50%; }
+      .fed-r { background: #f38ba8; }
+      .fed-y { background: #f9e2af; }
+      .fed-g { background: #a6e3a1; }
+      .fed-filename {
+        margin: 0 auto; font-family: 'Fira Code', monospace;
+        font-size: 11px; color: var(--muted);
+      }
+      .fed-body { padding: 28px; }
+      .fed-comment { font-family: 'Fira Code', monospace; font-size: 12px; color: var(--comment); margin-bottom: 20px; }
+      .fed-comment span { color: var(--teal); }
+
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .form-group { margin-bottom: 16px; }
+      .form-label {
+        display: block; font-family: 'Fira Code', monospace;
+        font-size: 11px; color: var(--purple); margin-bottom: 7px;
+        letter-spacing: 0.02em;
+      }
+      .form-input, .form-select {
+        width: 100%; background: rgba(137,180,250,0.04);
+        border: 1px solid var(--border);
+        color: var(--green); font-family: 'Fira Code', monospace;
+        font-size: 13px; padding: 10px 14px;
+        border-radius: 6px; outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        -webkit-appearance: none;
+      }
+      .form-input::placeholder { color: var(--comment); font-style: italic; }
+      .form-input:focus, .form-select:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(137,180,250,0.1);
+      }
+      .form-select { color: var(--text); }
+      .form-select option { background: #1e1e2e; color: var(--text); }
+      .form-submit {
+        width: 100%; margin-top: 8px;
+        background: linear-gradient(135deg, var(--blue), var(--teal));
+        color: #11111b; font-family: 'Fira Code', monospace;
+        font-size: 12px; font-weight: 700;
+        letter-spacing: 0.08em; padding: 13px 20px;
+        border: none; border-radius: 6px;
+        cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .form-submit:hover {
+        box-shadow: 0 0 28px rgba(137,180,250,0.4);
+        transform: translateY(-1px);
+      }
+      .form-note { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--comment); text-align: center; margin-top: 14px; }
+
+      @media (max-width: 960px) {
+        nav { padding: 0 24px; }
+        .nav-links { display: none; }
+        #hero { grid-template-columns: 1fr; padding-top: 56px; }
+        .hero-left { padding: 64px 24px; border-right: none; border-bottom: 1px solid var(--border); min-height: auto; }
+        .hero-right { padding: 24px; min-height: 400px; }
+        #how, #cta, #contact-form { padding: 72px 24px; }
+        #support { padding: 64px 24px; }
+        .steps { grid-template-columns: 1fr; }
+        .support-grid { grid-template-columns: repeat(2, 1fr); }
+        .form-wrap { grid-template-columns: 1fr; gap: 40px; }
+        footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- NAV -->
+    <nav>
+      <a href="cyberpunk.html" class="nav-logo">
+        <svg class="nav-logo-icon" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#89b4fa"/>
+              <stop offset="100%" stop-color="#94e2d5"/>
+            </linearGradient>
+          </defs>
+          <!-- Left brace -->
+          <path d="M18,8 Q10,8 10,16 L10,22 Q10,28 6,28 Q10,28 10,34 L10,40 Q10,48 18,48" stroke="url(#sg)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Right brace -->
+          <path d="M38,8 Q46,8 46,16 L46,22 Q46,28 50,28 Q46,28 46,34 L46,40 Q46,48 38,48" stroke="url(#sg)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Lightning bolt center -->
+          <path d="M32,16 L24,30 L30,30 L24,44 L36,26 L30,26 Z" fill="url(#sg)" opacity="0.9"/>
+        </svg>
+        <span class="nav-logo-text">
+          <span class="blue">{</span> schema<span class="teal">·gen</span> <span class="blue">}</span>
+        </span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#support">Supported APIs</a></li>
+        <li><a href="https://github.com" target="_blank">GitHub</a></li>
+        <li><a href="#">Docs</a></li>
+      </ul>
+      <a href="https://npmjs.com" class="nav-cta">npm install</a>
+    </nav>
+
+    <!-- HERO — split panel -->
+    <section id="hero">
+      <div class="hero-left">
+        <div class="hero-tag"><span class="tag-dot"></span>Open Source · TypeScript</div>
+        <h1 class="hero-h1">
+          Stop writing<br><span class="blue">types</span> by<br><span class="teal">hand.</span>
+        </h1>
+        <p class="hero-desc">
+          SchemaGen auto-generates TypeScript interfaces from REST APIs, GraphQL schemas, and OpenAPI specs. Accurate, up-to-date types — always.
+        </p>
+
+        <div class="hero-install">
+          <span class="install-cmd">
+            <span class="green">$</span> npx <span class="blue">schema-gen</span> generate
+          </span>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('npx schema-gen generate')">copy</button>
+        </div>
+
+        <div class="hero-actions">
+          <a href="https://npmjs.com" class="btn-blue">Get Started →</a>
+          <a href="cyberpunk.html" class="btn-ghost">← Portfolio</a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hs-item">
+            <div class="hs-val">2k</div>
+            <div class="hs-label">Weekly Downloads</div>
+          </div>
+          <div class="hs-item">
+            <div class="hs-val">MIT</div>
+            <div class="hs-label">License</div>
+          </div>
+          <div class="hs-item">
+            <div class="hs-val">v3.1</div>
+            <div class="hs-label">Latest Version</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Editor Panel -->
+      <div class="hero-right">
+        <div class="editor-tabs">
+          <div class="editor-tab active">api.json <span class="ext-json">REST</span></div>
+          <div class="editor-tab">types.ts <span class="ext-ts">TS</span></div>
+        </div>
+
+        <!-- INPUT: Raw JSON -->
+        <div class="editor-before">
+          <div class="panel-label">
+            <span class="dot-red"></span> Input — Raw API Response
+          </div>
+          <div class="editor-body" style="padding:0; font-size:12px; min-height:auto;">
+            <div><span class="ln">1</span><span class="p">{</span></div>
+            <div><span class="ln">2</span>&nbsp;&nbsp;<span class="s">"user"</span><span class="p">:</span> <span class="p">{</span></div>
+            <div><span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"id"</span><span class="p">:</span> <span class="num">4219</span><span class="p">,</span></div>
+            <div><span class="ln">4</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"name"</span><span class="p">:</span> <span class="s">"Alex Chen"</span><span class="p">,</span></div>
+            <div><span class="ln">5</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"email"</span><span class="p">:</span> <span class="s">"alex@co.io"</span><span class="p">,</span></div>
+            <div><span class="ln">6</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"role"</span><span class="p">:</span> <span class="s">"admin"</span><span class="p">,</span></div>
+            <div><span class="ln">7</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"createdAt"</span><span class="p">:</span> <span class="s">"2024-01-15T..."</span></div>
+            <div><span class="ln">8</span>&nbsp;&nbsp;<span class="p">}</span><span class="p">,</span></div>
+            <div><span class="ln">9</span>&nbsp;&nbsp;<span class="s">"permissions"</span><span class="p">:</span> <span class="p">[</span><span class="s">"read"</span><span class="p">,</span> <span class="s">"write"</span><span class="p">]</span></div>
+            <div><span class="ln">10</span><span class="p">}</span></div>
+          </div>
+        </div>
+
+        <!-- OUTPUT: Generated Types -->
+        <div class="editor-after">
+          <div class="panel-label">
+            <span class="dot-green"></span>
+            <span class="arrow">⚡</span> Generated — types.ts
+          </div>
+          <div class="editor-body" style="padding:0; font-size:12px; min-height:auto;">
+            <div><span class="ln">1</span><span class="c">/** Auto-generated by schema-gen v3.1 */</span></div>
+            <div><span class="ln">2</span></div>
+            <div><span class="ln">3</span><span class="k">export type</span> <span class="t">UserRole</span> <span class="op">=</span></div>
+            <div><span class="ln">4</span>&nbsp;&nbsp;<span class="op">|</span> <span class="s">'admin'</span> <span class="op">|</span> <span class="s">'editor'</span> <span class="op">|</span> <span class="s">'viewer'</span><span class="p">;</span></div>
+            <div><span class="ln">5</span></div>
+            <div><span class="ln">6</span><span class="k">export interface</span> <span class="t">User</span> <span class="p">{</span></div>
+            <div><span class="ln">7</span>&nbsp;&nbsp;<span class="p">id</span><span class="op">:</span> <span class="t">number</span><span class="p">;</span></div>
+            <div><span class="ln">8</span>&nbsp;&nbsp;<span class="p">name</span><span class="op">:</span> <span class="t">string</span><span class="p">;</span></div>
+            <div><span class="ln">9</span>&nbsp;&nbsp;<span class="p">email</span><span class="op">:</span> <span class="t">string</span><span class="p">;</span></div>
+            <div><span class="ln">10</span>&nbsp;&nbsp;<span class="p">role</span><span class="op">:</span> <span class="t">UserRole</span><span class="p">;</span></div>
+            <div><span class="ln">11</span>&nbsp;&nbsp;<span class="p">createdAt</span><span class="op">:</span> <span class="t">Date</span><span class="p">;</span></div>
+            <div><span class="ln">12</span><span class="p">}</span></div>
+            <div><span class="ln">13</span></div>
+            <div><span class="ln">14</span><span class="k">export interface</span> <span class="t">UserResponse</span> <span class="p">{</span></div>
+            <div><span class="ln">15</span>&nbsp;&nbsp;<span class="p">user</span><span class="op">:</span> <span class="t">User</span><span class="p">;</span></div>
+            <div><span class="ln">16</span>&nbsp;&nbsp;<span class="p">permissions</span><span class="op">:</span> <span class="t">string</span><span class="p">[];</span></div>
+            <div><span class="ln">17</span><span class="p">}</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how">
+      <div class="section-tag">how it works</div>
+      <h2 class="section-h2">Point. Generate. Ship.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-icon">🎯</div>
+          <div class="step-title">Point at your API</div>
+          <p class="step-desc">Give SchemaGen a REST endpoint, a GraphQL schema URL, or an OpenAPI spec path. Supports remote URLs and local files.</p>
+          <span class="step-cmd">--input https://api.co/openapi.json</span>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-icon">⚡</div>
+          <div class="step-title">Generate types</div>
+          <p class="step-desc">SchemaGen introspects the schema, infers union types, optional fields, and enums, then produces clean TypeScript with JSDoc comments.</p>
+          <span class="step-cmd">npx schema-gen generate</span>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-icon">🔄</div>
+          <div class="step-title">Stay in sync</div>
+          <p class="step-desc">Run in watch mode or hook into CI. Types regenerate automatically when your schema changes. Diff shows exactly what updated.</p>
+          <span class="step-cmd">schema-gen watch --ci</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPPORT MATRIX -->
+    <section id="support">
+      <div class="support-inner">
+        <div class="section-tag">supported sources</div>
+        <h2 class="section-h2">Works with every<br>schema format</h2>
+        <div class="support-grid">
+          <div class="support-card">
+            <div class="sc-icon">📄</div>
+            <div class="sc-name">OpenAPI 3.x</div>
+            <p class="sc-desc">Full spec support including $ref resolution, discriminators, allOf/oneOf/anyOf, and recursive schemas.</p>
+            <span class="sc-badge badge-stable">Stable</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">🔷</div>
+            <div class="sc-name">GraphQL</div>
+            <p class="sc-desc">Introspection query or .graphql SDL files. Generates interfaces for queries, mutations, subscriptions, and fragments.</p>
+            <span class="sc-badge badge-gql">GQL</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">🌐</div>
+            <div class="sc-name">REST Endpoints</div>
+            <p class="sc-desc">Hit a live endpoint, SchemaGen samples the response and infers types. Use sample files for multiple response shapes.</p>
+            <span class="sc-badge badge-stable">Stable</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">⚡</div>
+            <div class="sc-name">tRPC Routers</div>
+            <p class="sc-desc">Extract Zod schemas from tRPC routers and generate matching TypeScript interfaces with full runtime validation.</p>
+            <span class="sc-badge badge-new">New</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">🗄️</div>
+            <div class="sc-name">JSON Schema</div>
+            <p class="sc-desc">Draft 7 and 2020-12 compliant. Handles nested objects, arrays, enums, and conditional schemas.</p>
+            <span class="sc-badge badge-stable">Stable</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">🔥</div>
+            <div class="sc-name">Firebase / Firestore</div>
+            <p class="sc-desc">Point at a Firestore collection and generate typed document interfaces. Rules validation included.</p>
+            <span class="sc-badge badge-new">Beta</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">💎</div>
+            <div class="sc-name">Prisma Schema</div>
+            <p class="sc-desc">Reads your Prisma schema.prisma and generates full TypeScript interfaces including relations and enums.</p>
+            <span class="sc-badge badge-ts">TypeScript</span>
+          </div>
+          <div class="support-card">
+            <div class="sc-icon">📦</div>
+            <div class="sc-name">Protobuf / gRPC</div>
+            <p class="sc-badge">Proto3 messages and service definitions — generates TypeScript with matching gRPC-web client types.</p>
+            <span class="sc-badge badge-new">New</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section id="contact-form">
+      <div class="form-wrap">
+        <div class="form-left-info">
+          <div class="form-badge">subscribe.ts</div>
+          <h2>Type-safe from<br><span class="blue">API</span> to <span class="teal">component.</span></h2>
+          <p>schema-gen is free and open source. Subscribe to get release notes, migration guides, and early access to new features delivered straight to your inbox.</p>
+          <div class="form-perks">
+            <div class="form-perk">Early access to new major releases</div>
+            <div class="form-perk">Automated migration codemods</div>
+            <div class="form-perk">Private Discord community server</div>
+            <div class="form-perk">Priority support on GitHub issues</div>
+          </div>
+        </div>
+
+        <div class="form-editor">
+          <div class="fed-titlebar">
+            <span class="fed-dot fed-r"></span>
+            <span class="fed-dot fed-y"></span>
+            <span class="fed-dot fed-g"></span>
+            <span class="fed-filename">subscribe.ts — schema-gen</span>
+          </div>
+          <div class="fed-body">
+            <div class="fed-comment">Subscribe to schema-gen updates</div>
+            <form onsubmit="handleSubmit(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">name</label>
+                  <input type="text" class="form-input" placeholder="Your name" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">github</label>
+                  <input type="text" class="form-input" placeholder="@username" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">email</label>
+                <input type="email" class="form-input" placeholder="you@company.com" required />
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">useCase</label>
+                  <select class="form-select form-input">
+                    <option value="" disabled selected>select…</option>
+                    <option>REST API codegen</option>
+                    <option>GraphQL types</option>
+                    <option>OpenAPI → TS</option>
+                    <option>Database schema</option>
+                    <option>All of the above</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">framework</label>
+                  <select class="form-select form-input">
+                    <option value="" disabled selected>select…</option>
+                    <option>Next.js</option>
+                    <option>React + Vite</option>
+                    <option>Node.js / Express</option>
+                    <option>tRPC</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="form-submit">Subscribe for Updates →</button>
+              <p class="form-note">No spam · Unsubscribe anytime · MIT forever</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>schema-gen v3.1.0 — MIT © 2026 <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>Built with TypeScript · AST · OpenAPI</span>
+    </footer>
+
+    <script>
+      function handleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('.form-submit');
+        btn.textContent = '✓ Subscribed successfully!';
+        btn.style.background = 'linear-gradient(135deg, #a6e3a1, #94e2d5)';
+        btn.disabled = true;
+        e.target.reset();
+        setTimeout(() => { btn.textContent = 'Subscribe for Updates →'; btn.style.background = ''; btn.disabled = false; }, 4000);
+      }
+    </script>
+  </body>
+</html>

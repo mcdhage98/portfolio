@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pulse — AI Performance Monitoring for Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #07020f;
+        --bg2: #0d0620;
+        --surface: rgba(255, 107, 53, 0.06);
+        --border: rgba(255, 107, 53, 0.15);
+        --orange: #ff6b35;
+        --orange-light: #ff8c5a;
+        --purple: #7c3aed;
+        --purple-light: #9f67ff;
+        --pink: #f43f8e;
+        --text: #ffffff;
+        --body: #e2d9f3;
+        --muted: #a89ec4;
+        --muted2: #6b5f88;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Sora', sans-serif;
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
+
+      /* ── BACKGROUND ── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 60% 50% at 80% 20%, rgba(255, 107, 53, 0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 40% at 20% 70%, rgba(124, 58, 237, 0.1) 0%, transparent 60%),
+          radial-gradient(ellipse 40% 30% at 50% 100%, rgba(244, 63, 142, 0.06) 0%, transparent 50%);
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 56px;
+        height: 68px;
+        background: rgba(7, 2, 15, 0.8);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .logo-mark { width: 34px; height: 34px; }
+      .logo-name {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.02em;
+      }
+      .logo-name span { color: var(--orange); }
+
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .nav-links a:hover { color: var(--text); }
+
+      .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 10px 22px;
+        border-radius: 100px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .nav-cta:hover {
+        box-shadow: 0 0 28px rgba(255, 107, 53, 0.5);
+        transform: translateY(-1px);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 100px 56px 80px;
+        z-index: 1;
+      }
+
+      .hero-inner {
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
+
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--orange);
+        margin-bottom: 20px;
+      }
+      .eyebrow-line {
+        width: 28px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--orange), var(--pink));
+        border-radius: 2px;
+      }
+
+      .hero-h1 {
+        font-size: clamp(40px, 5vw, 66px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+      }
+      .hero-h1 .grad {
+        background: linear-gradient(135deg, var(--orange) 0%, var(--pink) 50%, var(--purple-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-desc {
+        font-size: 17px;
+        color: var(--body);
+        line-height: 1.8;
+        margin-bottom: 40px;
+        max-width: 460px;
+      }
+
+      .app-store-btns {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+      }
+      .store-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--text);
+        padding: 12px 22px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 13px;
+        transition: background 0.2s, border-color 0.2s;
+        backdrop-filter: blur(8px);
+      }
+      .store-btn:hover {
+        background: rgba(255, 107, 53, 0.1);
+        border-color: var(--border);
+      }
+      .store-icon { font-size: 22px; }
+      .store-text {}
+      .store-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+      .store-name { font-size: 15px; font-weight: 700; }
+
+      .hero-meta {
+        display: flex;
+        gap: 32px;
+      }
+      .hm-val {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text);
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      .hm-val span {
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hm-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── PHONE MOCKUP ── */
+      .phone-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+
+      .phone-glow {
+        position: absolute;
+        width: 300px; height: 500px;
+        background: radial-gradient(ellipse, rgba(255, 107, 53, 0.2) 0%, transparent 70%);
+        pointer-events: none;
+        filter: blur(30px);
+      }
+
+      .phone {
+        width: 260px;
+        background: #111;
+        border-radius: 40px;
+        border: 3px solid rgba(255,255,255,0.12);
+        padding: 12px;
+        position: relative;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,0.05),
+          0 40px 100px rgba(0,0,0,0.6),
+          inset 0 0 0 1px rgba(255,255,255,0.04);
+      }
+      .phone-notch {
+        width: 80px; height: 24px;
+        background: #111;
+        border-radius: 0 0 14px 14px;
+        margin: 0 auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        position: relative;
+        z-index: 2;
+      }
+      .notch-cam {
+        width: 10px; height: 10px;
+        background: #222;
+        border-radius: 50%;
+        border: 1px solid #333;
+      }
+      .notch-pill {
+        width: 40px; height: 10px;
+        background: #222;
+        border-radius: 100px;
+      }
+
+      .phone-screen {
+        background: #0a0012;
+        border-radius: 28px;
+        overflow: hidden;
+        min-height: 480px;
+        padding: 0;
+        position: relative;
+      }
+
+      .phone-header {
+        background: linear-gradient(180deg, #1a0830 0%, #0a0012 100%);
+        padding: 16px 16px 10px;
+      }
+      .phone-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .ph-app-name { font-size: 10px; font-weight: 700; color: var(--orange); letter-spacing: 0.1em; }
+      .ph-live { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--muted); }
+      .ph-dot { width: 5px; height: 5px; background: var(--orange); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+      .ph-metric-big {
+        margin-bottom: 8px;
+      }
+      .ph-m-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; }
+      .ph-m-val { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+      .ph-m-val.orange { color: var(--orange); }
+      .ph-m-val.purple { color: var(--purple-light); }
+      .ph-m-val.pink { color: var(--pink); }
+
+      /* Pulse wave SVG */
+      .phone-wave {
+        padding: 10px 16px;
+        border-top: 1px solid rgba(255,107,53,0.1);
+      }
+      .wave-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; }
+
+      .phone-metrics {
+        padding: 10px 12px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .pm-card {
+        background: rgba(255,107,53,0.07);
+        border: 1px solid rgba(255,107,53,0.12);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      .pm-label { font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; }
+      .pm-val { font-size: 14px; font-weight: 700; }
+      .pm-val.ok { color: #4ade80; }
+      .pm-val.warn { color: var(--orange); }
+      .pm-val.crit { color: var(--pink); }
+
+      .phone-alert {
+        margin: 6px 12px;
+        background: rgba(244,63,142,0.1);
+        border: 1px solid rgba(244,63,142,0.2);
+        border-radius: 10px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 9px;
+      }
+      .alert-icon { font-size: 14px; }
+      .alert-title { font-weight: 700; color: var(--pink); margin-bottom: 1px; }
+      .alert-body { color: var(--muted); line-height: 1.4; }
+
+      /* ── FEATURES ── */
+      #features {
+        position: relative;
+        z-index: 1;
+        padding: 100px 56px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .sec-tag {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+        background: linear-gradient(90deg, var(--orange), var(--pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .sec-h2 {
+        font-size: clamp(28px, 4vw, 52px);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin-bottom: 64px;
+        color: var(--text);
+      }
+
+      .feat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      .feat-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 20px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s, background 0.3s;
+      }
+      .feat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--orange), var(--pink), var(--purple-light));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s;
+      }
+      .feat-card:hover {
+        border-color: rgba(255, 107, 53, 0.2);
+        background: rgba(255, 107, 53, 0.04);
+      }
+      .feat-card:hover::before { transform: scaleX(1); }
+
+      .feat-emoji {
+        font-size: 36px;
+        margin-bottom: 20px;
+        display: block;
+      }
+      .feat-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text);
+        letter-spacing: -0.01em;
+      }
+      .feat-desc {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      /* ── ANOMALY SECTION ── */
+      #anomaly {
+        position: relative;
+        z-index: 1;
+        padding: 80px 56px;
+        background: linear-gradient(135deg, rgba(255,107,53,0.06) 0%, rgba(124,58,237,0.06) 100%);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .anomaly-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      .anomaly-right {}
+
+      .anomaly-card {
+        background: rgba(0,0,0,0.4);
+        border: 1px solid rgba(255,107,53,0.15);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(12px);
+        margin-bottom: 16px;
+      }
+      .anomaly-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .anomaly-title { font-size: 14px; font-weight: 600; color: var(--text); }
+      .anomaly-severity {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 100px;
+      }
+      .sev-high { background: rgba(244,63,142,0.15); color: var(--pink); }
+      .sev-med { background: rgba(255,107,53,0.15); color: var(--orange); }
+      .sev-ok { background: rgba(74,222,128,0.12); color: #4ade80; }
+      .anomaly-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+      .anomaly-ts { font-size: 11px; color: var(--muted2); margin-top: 8px; }
+
+      /* ── METRICS BAND ── */
+      #metrics {
+        position: relative;
+        z-index: 1;
+        padding: 80px 56px;
+      }
+      .metrics-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2px;
+        background: rgba(255,107,53,0.08);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .m-tile {
+        background: var(--bg);
+        padding: 40px 32px;
+        text-align: center;
+        transition: background 0.2s;
+      }
+      .m-tile:hover { background: rgba(255,107,53,0.04); }
+      .m-val {
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 8px;
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .m-label {
+        font-size: 13px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 500;
+      }
+
+      /* ── CTA ── */
+      #cta {
+        position: relative;
+        z-index: 1;
+        padding: 120px 56px;
+        text-align: center;
+        overflow: hidden;
+      }
+      #cta::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        width: 900px; height: 500px;
+        background: radial-gradient(ellipse, rgba(255,107,53,0.08) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .cta-inner { position: relative; z-index: 1; }
+      .cta-h2 {
+        font-size: clamp(40px, 6vw, 76px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        margin-bottom: 20px;
+      }
+      .cta-h2 .grad {
+        background: linear-gradient(135deg, var(--orange) 0%, var(--pink) 50%, var(--purple-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .cta-sub {
+        font-size: 18px;
+        color: var(--body);
+        max-width: 520px;
+        margin: 0 auto 48px;
+        line-height: 1.75;
+      }
+      .cta-btns {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .btn-grad {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        padding: 16px 32px;
+        border-radius: 100px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .btn-grad:hover {
+        box-shadow: 0 0 48px rgba(255,107,53,0.45);
+        transform: translateY(-3px);
+      }
+      .btn-outline-white {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
+        padding: 16px 32px;
+        border: 1.5px solid rgba(255,255,255,0.15);
+        border-radius: 100px;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .btn-outline-white:hover {
+        border-color: rgba(255,107,53,0.4);
+        background: rgba(255,107,53,0.06);
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        position: relative;
+        z-index: 1;
+        padding: 28px 56px;
+        border-top: 1px solid rgba(255,107,53,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+        color: var(--muted2);
+      }
+      footer a { color: var(--muted); text-decoration: none; }
+      footer a:hover { color: var(--orange); }
+
+      /* ── FORM ── */
+      #contact-form {
+        position: relative; z-index: 1;
+        padding: 100px 56px;
+        background: linear-gradient(180deg, rgba(255,107,53,0.04) 0%, rgba(124,58,237,0.04) 100%);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .form-wrap {
+        max-width: 1100px; margin: 0 auto;
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 72px; align-items: start;
+      }
+      .form-left-info {}
+      .form-eyebrow-tag {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.15em;
+        text-transform: uppercase; margin-bottom: 18px;
+        background: linear-gradient(90deg, var(--orange), var(--pink));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .form-left-info h2 {
+        font-family: 'Sora', sans-serif;
+        font-size: clamp(28px, 3.5vw, 48px); font-weight: 800;
+        line-height: 1.1; letter-spacing: -0.02em;
+        color: var(--text); margin-bottom: 18px;
+      }
+      .form-left-info h2 .grad {
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .form-left-info p { font-size: 16px; color: var(--body); line-height: 1.8; margin-bottom: 32px; }
+      .form-perks { display: flex; flex-direction: column; gap: 12px; }
+      .form-perk { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+      .fperk-dot {
+        width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+      }
+
+      .form-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,107,53,0.2);
+        border-radius: 20px; padding: 40px;
+        backdrop-filter: blur(16px);
+        box-shadow: 0 0 60px rgba(255,107,53,0.06);
+      }
+      .form-card-title {
+        font-size: 20px; font-weight: 800; letter-spacing: -0.02em;
+        color: var(--text); margin-bottom: 6px;
+      }
+      .form-card-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+      .form-group { margin-bottom: 16px; }
+      .form-label {
+        display: block; font-size: 11px; font-weight: 600;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 7px;
+      }
+      .form-input, .form-select {
+        width: 100%;
+        background: rgba(255,107,53,0.05);
+        border: 1px solid rgba(255,107,53,0.15);
+        color: var(--text); font-family: 'Sora', sans-serif;
+        font-size: 14px; padding: 12px 14px;
+        border-radius: 10px; outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        -webkit-appearance: none;
+      }
+      .form-input::placeholder { color: var(--muted2); }
+      .form-input:focus, .form-select:focus {
+        border-color: var(--orange);
+        box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+      }
+      .form-select option { background: #07020f; color: var(--text); }
+      .form-submit {
+        width: 100%; margin-top: 8px;
+        background: linear-gradient(135deg, var(--orange), var(--pink));
+        color: #fff; font-family: 'Sora', sans-serif;
+        font-size: 15px; font-weight: 700;
+        padding: 14px 24px; border: none;
+        border-radius: 100px; cursor: pointer;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .form-submit:hover {
+        box-shadow: 0 0 36px rgba(255,107,53,0.45);
+        transform: translateY(-2px);
+      }
+      .form-note { font-size: 12px; color: var(--muted2); text-align: center; margin-top: 14px; }
+
+      @media (max-width: 900px) {
+        nav { padding: 0 24px; }
+        .nav-links { display: none; }
+        #hero { padding: 80px 24px 56px; }
+        .hero-inner { grid-template-columns: 1fr; }
+        .phone-wrap { margin-top: 40px; }
+        #features, #cta, #contact-form { padding: 72px 24px; }
+        .feat-grid { grid-template-columns: 1fr; }
+        #anomaly { padding: 64px 24px; }
+        .anomaly-inner { grid-template-columns: 1fr; gap: 48px; }
+        #metrics { padding: 64px 24px; }
+        .metrics-inner { grid-template-columns: repeat(2, 1fr); }
+        .form-wrap { grid-template-columns: 1fr; gap: 40px; }
+        footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- NAV -->
+    <nav>
+      <a href="cyberpunk.html" class="nav-logo">
+        <svg class="logo-mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="pg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ff6b35"/>
+              <stop offset="100%" stop-color="#f43f8e"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="none" stroke="url(#pg)" stroke-width="3"/>
+          <path d="M8,32 L18,32 L22,20 L28,44 L34,18 L40,38 L44,28 L48,32 L56,32"
+                fill="none" stroke="url(#pg)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-name"><span>Pulse</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#anomaly">AI Detect</a></li>
+        <li><a href="#">Docs</a></li>
+        <li><a href="#">Pricing</a></li>
+      </ul>
+      <a href="#cta" class="nav-cta">Download App</a>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-inner">
+        <div>
+          <div class="hero-eyebrow">
+            <span class="eyebrow-line"></span>
+            AI-Powered Mobile Monitoring
+          </div>
+          <h1 class="hero-h1">
+            Know before<br>your users<br><span class="grad">ever complain.</span>
+          </h1>
+          <p class="hero-desc">
+            Pulse monitors your mobile app's performance in real time and uses AI to detect anomalies before they become outages. For teams who care about quality.
+          </p>
+          <div class="app-store-btns">
+            <a href="#" class="store-btn">
+              <span class="store-icon"></span>
+              <div class="store-text">
+                <div class="store-label">Download on the</div>
+                <div class="store-name">App Store</div>
+              </div>
+            </a>
+            <a href="#" class="store-btn">
+              <span class="store-icon">▶</span>
+              <div class="store-text">
+                <div class="store-label">Get it on</div>
+                <div class="store-name">Google Play</div>
+              </div>
+            </a>
+          </div>
+          <div class="hero-meta">
+            <div>
+              <div class="hm-val"><span>4.9</span> ★</div>
+              <div class="hm-label">App Store Rating</div>
+            </div>
+            <div>
+              <div class="hm-val"><span>200k+</span></div>
+              <div class="hm-label">Teams Monitoring</div>
+            </div>
+            <div>
+              <div class="hm-val"><span>2ms</span></div>
+              <div class="hm-label">Detection Latency</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phone mockup -->
+        <div class="phone-wrap">
+          <div class="phone-glow"></div>
+          <div class="phone">
+            <div class="phone-notch">
+              <span class="notch-pill"></span>
+              <span class="notch-cam"></span>
+            </div>
+            <div class="phone-screen">
+              <div class="phone-header">
+                <div class="phone-header-top">
+                  <span class="ph-app-name">PULSE MONITOR</span>
+                  <span class="ph-live"><span class="ph-dot"></span>LIVE</span>
+                </div>
+                <div class="ph-metric-big">
+                  <div class="ph-m-label">App Start Time</div>
+                  <div class="ph-m-val orange">1.24s</div>
+                </div>
+              </div>
+              <!-- Pulse wave -->
+              <div class="phone-wave">
+                <div class="wave-label">Frame Rate — Last 60s</div>
+                <svg viewBox="0 0 228 50" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%">
+                  <defs>
+                    <linearGradient id="wg" x1="0" y1="0" x2="228" y2="0" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.8"/>
+                      <stop offset="60%" stop-color="#f43f8e" stop-opacity="0.9"/>
+                      <stop offset="100%" stop-color="#9f67ff"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,30 L20,30 L25,10 L30,48 L35,5 L42,42 L48,25 L54,25
+                           L60,30 L68,30 L72,12 L78,44 L84,8 L90,40 L96,28 L100,28
+                           L108,30 L116,30 L120,15 L126,45 L132,10 L138,42 L144,25 L148,25
+                           L158,30 L168,30 L172,18 L178,40 L184,12 L190,38 L196,28 L200,28 L228,28"
+                        stroke="url(#wg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M0,30 L20,30 L25,10 L30,48 L35,5 L42,42 L48,25 L54,25
+                           L60,30 L68,30 L72,12 L78,44 L84,8 L90,40 L96,28 L100,28
+                           L108,30 L116,30 L120,15 L126,45 L132,10 L138,42 L144,25 L148,25
+                           L158,30 L168,30 L172,18 L178,40 L184,12 L190,38 L196,28 L200,28 L228,28
+                           L228,50 L0,50 Z"
+                        fill="url(#wg)" opacity="0.1"/>
+                </svg>
+              </div>
+              <div class="phone-metrics">
+                <div class="pm-card">
+                  <div class="pm-label">FPS</div>
+                  <div class="pm-val ok">59.8</div>
+                </div>
+                <div class="pm-card">
+                  <div class="pm-label">Memory</div>
+                  <div class="pm-val warn">184 MB</div>
+                </div>
+                <div class="pm-card">
+                  <div class="pm-label">Crash Rate</div>
+                  <div class="pm-val ok">0.01%</div>
+                </div>
+                <div class="pm-card">
+                  <div class="pm-label">ANRs</div>
+                  <div class="pm-val ok">0</div>
+                </div>
+              </div>
+              <div class="phone-alert">
+                <span class="alert-icon">🤖</span>
+                <div>
+                  <div class="alert-title">AI Anomaly Detected</div>
+                  <div class="alert-body">Checkout screen latency +340% on Android 13 — 2 min ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="sec-tag">Core Features</div>
+      <h2 class="sec-h2">Everything your mobile<br>team needs to sleep well</h2>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <span class="feat-emoji">🤖</span>
+          <div class="feat-title">AI Anomaly Detection</div>
+          <p class="feat-desc">TensorFlow models trained on 10M+ crash signatures detect performance regressions before your users notice. Alerts in under 2ms.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-emoji">📈</span>
+          <div class="feat-title">Real-Time Vitals</div>
+          <p class="feat-desc">Frame rate, memory pressure, CPU usage, battery drain, app start time, and network latency — all streamed live, segmented by device and OS.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-emoji">💥</span>
+          <div class="feat-title">Crash Intelligence</div>
+          <p class="feat-desc">Symbolicated crash reports with full stack traces, user journey replay, and device context. Group by root cause, not just error message.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-emoji">🗺️</span>
+          <div class="feat-title">Session Replay</div>
+          <p class="feat-desc">Privacy-safe screen recordings of crash sessions. See exactly what the user did. Automatically attached to every crash report.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-emoji">🎯</span>
+          <div class="feat-title">Smart Alerts</div>
+          <p class="feat-desc">Context-aware alerts that learn your app's normal behavior. No alert fatigue — only signal when something genuinely unusual happens.</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-emoji">🔌</span>
+          <div class="feat-title">Zero-Code SDK</div>
+          <p class="feat-desc">One line to add in your app. Auto-instruments React Native, Swift, and Kotlin code paths. No manual instrumentation required.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANOMALY SECTION -->
+    <section id="anomaly">
+      <div class="anomaly-inner">
+        <div>
+          <div class="sec-tag">AI-Powered Detection</div>
+          <h2 class="sec-h2">Your AI performance<br>engineer, 24/7</h2>
+          <p style="font-size:17px;color:var(--muted);line-height:1.8;margin-bottom:32px;max-width:420px;">
+            Pulse's ML models continuously baseline your app's behavior and fire alerts the moment something deviates — catching bugs before your users encounter them.
+          </p>
+          <a href="#cta" class="btn-grad" style="display:inline-flex">See it in action →</a>
+        </div>
+        <div class="anomaly-right">
+          <div class="anomaly-card">
+            <div class="anomaly-top">
+              <span class="anomaly-title">🚨 Checkout Latency Spike</span>
+              <span class="anomaly-severity sev-high">Critical</span>
+            </div>
+            <p class="anomaly-desc">P99 latency on checkout_complete jumped from 280ms → 1.2s. Affects 12% of Android users on API 33+. Likely correlated with v4.2.1 release.</p>
+            <div class="anomaly-ts">Detected 2 min ago · 1,847 affected sessions</div>
+          </div>
+          <div class="anomaly-card">
+            <div class="anomaly-top">
+              <span class="anomaly-title">⚠️ Memory Leak Detected</span>
+              <span class="anomaly-severity sev-med">Warning</span>
+            </div>
+            <p class="anomaly-desc">ProfileFragment not releasing bitmap cache on back navigation. Memory grows 3.2MB per view cycle. Fix suggested in attached PR diff.</p>
+            <div class="anomaly-ts">Detected 18 min ago · 423 sessions trending upward</div>
+          </div>
+          <div class="anomaly-card">
+            <div class="anomaly-top">
+              <span class="anomaly-title">✅ App Start Time Normalized</span>
+              <span class="anomaly-severity sev-ok">Resolved</span>
+            </div>
+            <p class="anomaly-desc">Cold start time returned to baseline (1.2s) after hotfix deploy. Anomaly duration: 43 minutes. No user-visible errors reported.</p>
+            <div class="anomaly-ts">Resolved 1 hr ago · Auto-closed</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section id="metrics">
+      <div class="metrics-inner">
+        <div class="m-tile">
+          <div class="m-val">200k+</div>
+          <div class="m-label">Teams Monitoring</div>
+        </div>
+        <div class="m-tile">
+          <div class="m-val">2ms</div>
+          <div class="m-label">Detection Speed</div>
+        </div>
+        <div class="m-tile">
+          <div class="m-val">4.9★</div>
+          <div class="m-label">App Store Rating</div>
+        </div>
+        <div class="m-tile">
+          <div class="m-val">99.9%</div>
+          <div class="m-label">SDK Uptime</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section id="contact-form">
+      <div class="form-wrap">
+        <div class="form-left-info">
+          <div class="form-eyebrow-tag">Join the waitlist</div>
+          <h2>Your users deserve<br>a <span class="grad">perfect app.</span></h2>
+          <p>Pulse is currently in private beta. Join the waitlist and we'll give you early access as soon as a spot opens — free for the first 90 days.</p>
+          <div class="form-perks">
+            <div class="form-perk"><span class="fperk-dot"></span>90-day free trial for waitlist members</div>
+            <div class="form-perk"><span class="fperk-dot"></span>AI anomaly alerts before your users notice</div>
+            <div class="form-perk"><span class="fperk-dot"></span>Priority onboarding with our engineering team</div>
+            <div class="form-perk"><span class="fperk-dot"></span>Shape the roadmap — direct Slack channel access</div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">Get early access</div>
+          <div class="form-card-sub">Currently 1,200+ engineers on the waitlist</div>
+          <form onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" placeholder="Alex Chen" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Work Email</label>
+              <input type="email" class="form-input" placeholder="alex@company.com" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Platform</label>
+                <select class="form-select form-input" required>
+                  <option value="" disabled selected>Select</option>
+                  <option>iOS</option>
+                  <option>Android</option>
+                  <option>Both</option>
+                  <option>React Native</option>
+                  <option>Flutter</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">App DAU</label>
+                <select class="form-select form-input" required>
+                  <option value="" disabled selected>Select</option>
+                  <option>Under 1k</option>
+                  <option>1k – 50k</option>
+                  <option>50k – 500k</option>
+                  <option>500k+</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Biggest Performance Pain Point</label>
+              <select class="form-select form-input">
+                <option value="" disabled selected>Select</option>
+                <option>Crash detection</option>
+                <option>Slow API responses</option>
+                <option>Memory / CPU spikes</option>
+                <option>Battery drain</option>
+                <option>All of the above</option>
+              </select>
+            </div>
+            <button type="submit" class="form-submit">Join the Waitlist →</button>
+            <p class="form-note">No spam · We'll only email you when your access is ready</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 Pulse — A Project by <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>Built with React Native · Python · TensorFlow</span>
+    </footer>
+
+    <script>
+      function handleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('.form-submit');
+        btn.textContent = "✓ You're on the list!";
+        btn.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        btn.disabled = true;
+        e.target.reset();
+        setTimeout(() => { btn.textContent = 'Join the Waitlist →'; btn.style.background = ''; btn.disabled = false; }, 4000);
+      }
+    </script>
+  </body>
+</html>

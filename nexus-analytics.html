@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Analytics — Real-Time at Scale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #020818;
+        --bg2: #050d24;
+        --glass: rgba(12, 30, 70, 0.55);
+        --border: rgba(56, 189, 248, 0.15);
+        --border-glow: rgba(56, 189, 248, 0.4);
+        --cyan: #38bdf8;
+        --teal: #5eead4;
+        --purple: #818cf8;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --glow: rgba(56, 189, 248, 0.2);
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* ── STAR FIELD ── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+          radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.4) 0%, transparent 100%),
+          radial-gradient(1px 1px at 60% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+          radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+          radial-gradient(1px 1px at 45% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+          radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+          radial-gradient(1px 1px at 5% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+          radial-gradient(2px 2px at 70% 5%, rgba(56,189,248,0.5) 0%, transparent 100%),
+          radial-gradient(2px 2px at 20% 40%, rgba(94,234,212,0.4) 0%, transparent 100%),
+          radial-gradient(2px 2px at 85% 75%, rgba(129,140,248,0.5) 0%, transparent 100%);
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 60px;
+        background: rgba(2, 8, 24, 0.8);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+      }
+
+      .logo-wordmark {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: var(--text);
+      }
+      .logo-wordmark span { color: var(--cyan); }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .nav-badge {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--teal);
+        border: 1px solid rgba(94, 234, 212, 0.25);
+        padding: 5px 14px;
+        border-radius: 100px;
+        background: rgba(94, 234, 212, 0.05);
+      }
+
+      .btn-nav {
+        background: var(--cyan);
+        color: #020818;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 10px 22px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .btn-nav:hover {
+        box-shadow: 0 0 24px rgba(56, 189, 248, 0.5);
+        transform: translateY(-1px);
+      }
+
+      .btn-back {
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+      }
+      .btn-back:hover { color: var(--cyan); }
+
+      /* ── HERO ── */
+      #hero {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 120px 60px 80px;
+        overflow: hidden;
+      }
+
+      .hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+      }
+      .hero-orb-1 {
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+        top: -100px; right: -100px;
+      }
+      .hero-orb-2 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(129,140,248,0.1) 0%, transparent 70%);
+        bottom: 0; left: 100px;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 6px 16px;
+        border-radius: 100px;
+        background: rgba(56, 189, 248, 0.06);
+        margin-bottom: 28px;
+      }
+      .hero-badge-dot {
+        width: 6px; height: 6px;
+        background: var(--teal);
+        border-radius: 50%;
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.7); }
+      }
+
+      .hero-h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(44px, 5vw, 72px);
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        margin-bottom: 24px;
+      }
+      .hero-h1 .gradient-text {
+        background: linear-gradient(135deg, var(--cyan) 0%, var(--teal) 50%, var(--purple) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-desc {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.8;
+        margin-bottom: 44px;
+        max-width: 480px;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 56px;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--cyan), var(--teal));
+        color: #020818;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 13px 26px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: box-shadow 0.25s, transform 0.2s;
+      }
+      .btn-primary:hover {
+        box-shadow: 0 0 32px rgba(56, 189, 248, 0.4);
+        transform: translateY(-2px);
+      }
+
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        padding: 13px 26px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .btn-ghost:hover {
+        border-color: var(--border-glow);
+        background: rgba(56, 189, 248, 0.05);
+      }
+
+      .hero-meta {
+        display: flex;
+        gap: 32px;
+      }
+      .meta-item {}
+      .meta-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--cyan);
+        line-height: 1;
+        margin-bottom: 4px;
+      }
+      .meta-label {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      /* ── DASHBOARD MOCKUP ── */
+      .dashboard-mockup {
+        position: relative;
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 0 80px rgba(56, 189, 248, 0.08), 0 40px 80px rgba(0,0,0,0.4);
+      }
+
+      .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .dash-title {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .dash-live {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--teal);
+      }
+      .live-dot {
+        width: 6px; height: 6px;
+        background: var(--teal);
+        border-radius: 50%;
+        animation: pulse-dot 1.5s ease-in-out infinite;
+      }
+
+      .dash-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .dash-stat {
+        background: rgba(56, 189, 248, 0.06);
+        border: 1px solid rgba(56, 189, 248, 0.1);
+        border-radius: 8px;
+        padding: 14px;
+      }
+      .dash-stat-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--cyan);
+        margin-bottom: 2px;
+      }
+      .dash-stat-label {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      /* Chart bars */
+      .dash-chart {
+        margin-bottom: 16px;
+      }
+      .chart-label {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 10px;
+      }
+      .chart-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+        height: 80px;
+      }
+      .bar {
+        flex: 1;
+        border-radius: 3px 3px 0 0;
+        background: linear-gradient(180deg, var(--cyan), rgba(56, 189, 248, 0.3));
+        animation: grow 1.2s ease-out forwards;
+        transform-origin: bottom;
+      }
+      @keyframes grow {
+        from { transform: scaleY(0); }
+        to { transform: scaleY(1); }
+      }
+
+      .dash-events {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .event-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+      }
+      .event-row:last-child { border-bottom: none; }
+      .event-name { color: var(--text); }
+      .event-count { color: var(--cyan); font-family: 'Space Grotesk', sans-serif; }
+
+      /* ── CLIENTS TICKER ── */
+      .clients-bar {
+        position: relative;
+        padding: 40px 0;
+        overflow: hidden;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .clients-label {
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 24px;
+      }
+      .ticker-wrap {
+        display: flex;
+        gap: 48px;
+        animation: ticker 20s linear infinite;
+        width: max-content;
+      }
+      @keyframes ticker {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      .ticker-item {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        color: rgba(148, 163, 184, 0.4);
+        white-space: nowrap;
+        letter-spacing: 0.05em;
+        transition: color 0.2s;
+      }
+
+      /* ── FEATURES ── */
+      #features {
+        padding: 100px 60px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .section-eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--cyan);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-eyebrow::before {
+        content: '';
+        display: block;
+        width: 32px;
+        height: 1px;
+        background: var(--cyan);
+      }
+      .section-h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(32px, 4vw, 52px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 16px;
+      }
+      .section-sub {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.8;
+        max-width: 560px;
+        margin-bottom: 64px;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+        background: var(--border);
+        border: 1px solid var(--border);
+      }
+      .feature-card {
+        background: var(--bg);
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s;
+      }
+      .feature-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(56,189,248,0.05) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .feature-card:hover { background: rgba(12, 30, 70, 0.5); }
+      .feature-card:hover::before { opacity: 1; }
+
+      .feature-icon {
+        width: 48px; height: 48px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(56, 189, 248, 0.08);
+        display: grid;
+        place-items: center;
+        margin-bottom: 24px;
+        font-size: 22px;
+      }
+      .feature-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+      .feature-desc {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      /* ── ARCHITECTURE ── */
+      #architecture {
+        padding: 100px 60px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .arch-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .arch-flow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        margin-top: 64px;
+        position: relative;
+      }
+      .arch-flow::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--cyan), var(--teal), var(--purple), transparent);
+        transform: translateY(-50%);
+        z-index: 0;
+      }
+      .arch-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        padding: 20px;
+      }
+      .arch-node {
+        width: 72px; height: 72px;
+        border-radius: 50%;
+        border: 2px solid var(--border-glow);
+        background: var(--bg);
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+        margin-bottom: 16px;
+        position: relative;
+        box-shadow: 0 0 24px rgba(56, 189, 248, 0.15);
+      }
+      .arch-step-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .arch-step-sub {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .arch-tech-tag {
+        display: inline-block;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--cyan);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        padding: 2px 8px;
+        border-radius: 100px;
+        margin-top: 8px;
+        background: rgba(56, 189, 248, 0.05);
+      }
+
+      /* ── METRICS ── */
+      #metrics {
+        padding: 100px 60px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        margin-top: 64px;
+      }
+      .metric-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 36px 28px;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      .metric-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(56,189,248,0.05) 0%, transparent 100%);
+      }
+      .metric-card:hover {
+        border-color: var(--border-glow);
+        box-shadow: 0 0 40px rgba(56, 189, 248, 0.1);
+      }
+      .metric-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 48px;
+        font-weight: 800;
+        line-height: 1;
+        background: linear-gradient(135deg, var(--cyan), var(--teal));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 1;
+      }
+      .metric-label {
+        font-size: 13px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── CTA ── */
+      #cta {
+        padding: 120px 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      #cta::before {
+        content: '';
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 800px; height: 400px;
+        background: radial-gradient(ellipse, rgba(56,189,248,0.06) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .cta-inner {
+        position: relative;
+        z-index: 1;
+      }
+      .cta-h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(36px, 5vw, 64px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 20px;
+      }
+      .cta-sub {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.8;
+        max-width: 520px;
+        margin: 0 auto 44px;
+      }
+      .cta-actions {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        padding: 32px 60px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+      }
+      footer a { color: var(--muted); text-decoration: none; }
+      footer a:hover { color: var(--cyan); }
+
+      /* ── FORM ── */
+      #contact-form {
+        padding: 100px 60px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .form-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 72px;
+        align-items: start;
+      }
+      .form-left-info {}
+      .form-left-info .section-eyebrow { margin-bottom: 16px; }
+      .form-left-info h2 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: clamp(30px, 3.5vw, 48px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 18px;
+        color: var(--text);
+      }
+      .form-left-info p { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 32px; }
+      .form-perks { display: flex; flex-direction: column; gap: 12px; }
+      .form-perk {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 14px; color: var(--muted);
+      }
+      .form-perk-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--teal); flex-shrink: 0;
+        box-shadow: 0 0 8px var(--teal);
+      }
+
+      .form-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 40px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      }
+      .form-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 20px; font-weight: 700;
+        margin-bottom: 28px; color: var(--text);
+        letter-spacing: -0.01em;
+      }
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .form-group { margin-bottom: 18px; }
+      .form-label {
+        display: block; font-size: 11px; font-weight: 600;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        color: var(--muted); margin-bottom: 8px;
+      }
+      .form-input, .form-select {
+        width: 100%;
+        background: rgba(56,189,248,0.04);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px; padding: 12px 16px;
+        border-radius: 8px; outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        -webkit-appearance: none;
+      }
+      .form-input::placeholder { color: rgba(148,163,184,0.4); }
+      .form-input:focus, .form-select:focus {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+      }
+      .form-select { cursor: pointer; }
+      .form-select option { background: #050d24; color: var(--text); }
+      .form-submit {
+        width: 100%; margin-top: 8px;
+        background: linear-gradient(135deg, var(--cyan), var(--teal));
+        color: #020818; font-family: 'Space Grotesk', sans-serif;
+        font-size: 14px; font-weight: 800;
+        letter-spacing: 0.04em; padding: 14px 24px;
+        border: none; border-radius: 8px;
+        cursor: pointer; transition: box-shadow 0.2s, transform 0.2s;
+      }
+      .form-submit:hover {
+        box-shadow: 0 0 32px rgba(56,189,248,0.4);
+        transform: translateY(-2px);
+      }
+      .form-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; }
+
+      @media (max-width: 900px) {
+        nav { padding: 16px 24px; }
+        #hero { padding: 100px 24px 60px; }
+        .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+        #features, #metrics, #cta, #contact-form { padding: 72px 24px; }
+        #architecture { padding: 72px 24px; }
+        .features-grid { grid-template-columns: 1fr; }
+        .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+        .arch-flow { grid-template-columns: repeat(2, 1fr); }
+        .arch-flow::before { display: none; }
+        .form-wrap { grid-template-columns: 1fr; gap: 40px; }
+        footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- NAV -->
+    <nav>
+      <a href="cyberpunk.html" class="nav-logo">
+        <svg class="logo-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="ng" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="100%" stop-color="#5eead4"/>
+            </linearGradient>
+          </defs>
+          <circle cx="40" cy="40" r="7" fill="url(#ng)"/>
+          <circle cx="40" cy="12" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <circle cx="64" cy="26" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <circle cx="64" cy="54" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <circle cx="40" cy="68" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <circle cx="16" cy="54" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <circle cx="16" cy="26" r="4.5" fill="url(#ng)" opacity="0.85"/>
+          <line x1="40" y1="40" x2="40" y2="12" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="40" x2="64" y2="26" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="40" x2="64" y2="54" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="40" x2="40" y2="68" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="40" x2="16" y2="54" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="40" x2="16" y2="26" stroke="url(#ng)" stroke-width="1.5" opacity="0.5"/>
+          <line x1="40" y1="12" x2="64" y2="26" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+          <line x1="64" y1="26" x2="64" y2="54" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+          <line x1="64" y1="54" x2="40" y2="68" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+          <line x1="40" y1="68" x2="16" y2="54" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+          <line x1="16" y1="54" x2="16" y2="26" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+          <line x1="16" y1="26" x2="40" y2="12" stroke="url(#ng)" stroke-width="1" opacity="0.3"/>
+        </svg>
+        <span class="logo-wordmark">NEXUS<span>.</span>ANALYTICS</span>
+      </a>
+      <div class="nav-right">
+        <span class="nav-badge">● Live Platform</span>
+        <a href="#cta" class="btn-nav">Request Demo</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-badge"><span class="hero-badge-dot"></span>Real-Time Analytics Engine</div>
+          <h1 class="hero-h1">
+            <span class="gradient-text">4 Billion</span><br>
+            Events. Every<br>Single Day.
+          </h1>
+          <p class="hero-desc">
+            Nexus Analytics is the distributed intelligence layer trusted by 200+ enterprise teams. Sub-100ms query latency. Zero compromises.
+          </p>
+          <div class="hero-actions">
+            <a href="#cta" class="btn-primary">Start Free Trial →</a>
+            <a href="#architecture" class="btn-ghost">View Architecture</a>
+          </div>
+          <div class="hero-meta">
+            <div class="meta-item">
+              <div class="meta-val">4B+</div>
+              <div class="meta-label">Events / Day</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-val">&lt;100ms</div>
+              <div class="meta-label">Query Latency</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-val">99.99%</div>
+              <div class="meta-label">Uptime SLA</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Mockup -->
+        <div class="dashboard-mockup">
+          <div class="dash-header">
+            <span class="dash-title">Event Stream — Live</span>
+            <span class="dash-live"><span class="live-dot"></span>connected</span>
+          </div>
+          <div class="dash-stats">
+            <div class="dash-stat">
+              <div class="dash-stat-val">47.2M</div>
+              <div class="dash-stat-label">Events / Hr</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-val">98ms</div>
+              <div class="dash-stat-label">P99 Latency</div>
+            </div>
+            <div class="dash-stat">
+              <div class="dash-stat-val">100%</div>
+              <div class="dash-stat-label">Throughput</div>
+            </div>
+          </div>
+          <div class="dash-chart">
+            <div class="chart-label">Event Volume — Last 12hrs</div>
+            <div class="chart-bars">
+              <div class="bar" style="height:40%;animation-delay:0.0s"></div>
+              <div class="bar" style="height:60%;animation-delay:0.1s"></div>
+              <div class="bar" style="height:45%;animation-delay:0.2s"></div>
+              <div class="bar" style="height:80%;animation-delay:0.3s"></div>
+              <div class="bar" style="height:55%;animation-delay:0.4s"></div>
+              <div class="bar" style="height:90%;animation-delay:0.5s"></div>
+              <div class="bar" style="height:70%;animation-delay:0.6s"></div>
+              <div class="bar" style="height:95%;animation-delay:0.7s"></div>
+              <div class="bar" style="height:65%;animation-delay:0.8s"></div>
+              <div class="bar" style="height:75%;animation-delay:0.9s"></div>
+              <div class="bar" style="height:88%;animation-delay:1.0s"></div>
+              <div class="bar" style="height:100%;animation-delay:1.1s"></div>
+            </div>
+          </div>
+          <div class="dash-events">
+            <div class="event-row"><span class="event-name">page_view</span><span class="event-count">1.2B</span></div>
+            <div class="event-row"><span class="event-name">purchase_complete</span><span class="event-count">847M</span></div>
+            <div class="event-row"><span class="event-name">api_call</span><span class="event-count">2.1B</span></div>
+            <div class="event-row"><span class="event-name">user_session</span><span class="event-count">312M</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <div class="clients-bar">
+      <div class="clients-label">Trusted by engineering teams at</div>
+      <div class="ticker-wrap" id="ticker">
+        <span class="ticker-item">STRIPE</span>
+        <span class="ticker-item">SHOPIFY</span>
+        <span class="ticker-item">FIGMA</span>
+        <span class="ticker-item">NOTION</span>
+        <span class="ticker-item">VERCEL</span>
+        <span class="ticker-item">LINEAR</span>
+        <span class="ticker-item">DISCORD</span>
+        <span class="ticker-item">GITHUB</span>
+        <span class="ticker-item">SUPABASE</span>
+        <span class="ticker-item">PLANETSCALE</span>
+        <!-- duplicate for seamless loop -->
+        <span class="ticker-item">STRIPE</span>
+        <span class="ticker-item">SHOPIFY</span>
+        <span class="ticker-item">FIGMA</span>
+        <span class="ticker-item">NOTION</span>
+        <span class="ticker-item">VERCEL</span>
+        <span class="ticker-item">LINEAR</span>
+        <span class="ticker-item">DISCORD</span>
+        <span class="ticker-item">GITHUB</span>
+        <span class="ticker-item">SUPABASE</span>
+        <span class="ticker-item">PLANETSCALE</span>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features">
+      <div class="section-eyebrow">Core capabilities</div>
+      <h2 class="section-h2">Built for the<br>most demanding pipelines</h2>
+      <p class="section-sub">Every component engineered for scale — from ingestion to query, with zero data loss guarantees.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Sub-100ms Queries</div>
+          <p class="feature-desc">ClickHouse-backed columnar storage with pre-aggregated materialized views. Query trillions of rows in milliseconds.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔀</div>
+          <div class="feature-title">Kafka-Powered Ingest</div>
+          <p class="feature-desc">Distributed Kafka pipeline with exactly-once semantics. Handles 4B+ events/day without dropping a single event.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Live Dashboards</div>
+          <p class="feature-desc">React-powered real-time dashboards with WebSocket streaming. See your data update as events arrive.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔐</div>
+          <div class="feature-title">Enterprise Security</div>
+          <p class="feature-desc">SOC 2 Type II, GDPR compliant. Row-level security, audit logs, SSO, and end-to-end encryption at rest and in transit.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧮</div>
+          <div class="feature-title">SQL + Streaming</div>
+          <p class="feature-desc">Write SQL over real-time streams. Familiar syntax, unfamiliar scale. Supports window functions and complex joins.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☸️</div>
+          <div class="feature-title">Kubernetes Native</div>
+          <p class="feature-desc">Horizontal pod autoscaling, self-healing clusters, and zero-downtime deployments. Scales with your traffic automatically.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section id="architecture">
+      <div class="arch-inner">
+        <div class="section-eyebrow">System Architecture</div>
+        <h2 class="section-h2">How the pipeline flows</h2>
+        <p class="section-sub">Four layers, each independently scalable, all working in concert to deliver real-time intelligence.</p>
+        <div class="arch-flow">
+          <div class="arch-step">
+            <div class="arch-node">📡</div>
+            <div class="arch-step-title">Ingest</div>
+            <div class="arch-step-sub">SDK / HTTP / Webhook events from any source</div>
+            <span class="arch-tech-tag">Kafka</span>
+          </div>
+          <div class="arch-step">
+            <div class="arch-node">⚙️</div>
+            <div class="arch-step-title">Process</div>
+            <div class="arch-step-sub">Stream processing, enrichment & deduplication</div>
+            <span class="arch-tech-tag">Go Workers</span>
+          </div>
+          <div class="arch-step">
+            <div class="arch-node">🗄️</div>
+            <div class="arch-step-title">Store</div>
+            <div class="arch-step-sub">Columnar storage with automatic partitioning</div>
+            <span class="arch-tech-tag">ClickHouse</span>
+          </div>
+          <div class="arch-step">
+            <div class="arch-node">🔍</div>
+            <div class="arch-step-title">Query</div>
+            <div class="arch-step-sub">Sub-100ms SQL queries over billions of rows</div>
+            <span class="arch-tech-tag">React + WS</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METRICS -->
+    <section id="metrics">
+      <div class="section-eyebrow">By the numbers</div>
+      <h2 class="section-h2">Scale that speaks<br>for itself</h2>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val">4B+</div>
+          <div class="metric-label">Daily Events</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">98ms</div>
+          <div class="metric-label">P99 Latency</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">200+</div>
+          <div class="metric-label">Enterprise Clients</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">99.99%</div>
+          <div class="metric-label">Uptime SLA</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section id="contact-form">
+      <div class="form-wrap">
+        <div class="form-left-info">
+          <div class="section-eyebrow">Get Started</div>
+          <h2>Request a<br>live demo</h2>
+          <p>See Nexus Analytics process your actual data in real time. Our team will walk you through a personalized 30-minute demo — no generic slide decks.</p>
+          <div class="form-perks">
+            <div class="form-perk"><span class="form-perk-dot"></span>Live pipeline walkthrough with your data</div>
+            <div class="form-perk"><span class="form-perk-dot"></span>Custom architecture review for your scale</div>
+            <div class="form-perk"><span class="form-perk-dot"></span>Pricing tailored to your event volume</div>
+            <div class="form-perk"><span class="form-perk-dot"></span>14-day free trial, no credit card needed</div>
+          </div>
+        </div>
+        <div class="form-card">
+          <div class="form-title">Book your demo</div>
+          <form onsubmit="handleSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-input" placeholder="Alex" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-input" placeholder="Chen" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Work Email</label>
+              <input type="email" class="form-input" placeholder="alex@company.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-input" placeholder="Acme Corp" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Daily Events</label>
+                <select class="form-select form-input" required>
+                  <option value="" disabled selected>Select range</option>
+                  <option>Under 1M / day</option>
+                  <option>1M – 100M / day</option>
+                  <option>100M – 1B / day</option>
+                  <option>1B+ / day</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Team Size</label>
+                <select class="form-select form-input" required>
+                  <option value="" disabled selected>Select size</option>
+                  <option>1 – 10</option>
+                  <option>11 – 50</option>
+                  <option>51 – 200</option>
+                  <option>200+</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="form-submit">Request Demo →</button>
+            <p class="form-note">No spam. We'll only email you about your demo.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 NEXUS ANALYTICS — A Project by <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>Built with Go · Kafka · ClickHouse · React · Kubernetes</span>
+    </footer>
+
+    <script>
+      function handleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('.form-submit');
+        btn.textContent = '✓ Request Sent!';
+        btn.style.background = 'linear-gradient(135deg,#5eead4,#38bdf8)';
+        btn.disabled = true;
+        e.target.reset();
+        setTimeout(() => { btn.textContent = 'Request Demo →'; btn.style.background = ''; btn.disabled = false; }, 4000);
+      }
+    </script>
+  </body>
+</html>
