@@ -655,9 +655,27 @@
       }
       .form-note-term { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; letter-spacing: 0.06em; }
 
+      .nav-back-mobile {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--green);
+        text-decoration: none;
+        font-family: 'JetBrains Mono', monospace;
+        border: 1px solid rgba(0,255,65,0.25);
+        padding: 7px 14px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+      .nav-back-mobile:hover { background: rgba(0,255,65,0.06); }
+
       @media (max-width: 900px) {
         nav { padding: 0 24px; }
         .nav-links { display: none; }
+        .nav-cta { display: none; }
+        .nav-back-mobile { display: flex; }
         #hero { padding: 80px 24px 48px; }
         .hero-inner { grid-template-columns: 1fr; gap: 40px; }
         .hero-ascii { font-size: 7px; }
@@ -685,7 +703,7 @@
 
     <!-- NAV -->
     <nav>
-      <a href="cyberpunk.html" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <svg class="logo-svg" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
           <polygon points="30,4 52,16 52,44 30,56 8,44 8,16" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.5"/>
           <polygon points="30,12 44,20 44,40 30,48 16,40 16,20" fill="none" stroke="#00ff41" stroke-width="1.5" opacity="0.25"/>
@@ -702,6 +720,7 @@
         <li><a href="#" >Docs</a></li>
       </ul>
       <a href="https://github.com" class="nav-cta">⭐ 8k Stars</a>
+      <a href="index.html" class="nav-back-mobile">← Portfolio</a>
     </nav>
 
     <!-- HERO -->
@@ -734,7 +753,7 @@
           </div>
           <div class="hero-actions">
             <a href="#install" class="btn-green">$ npm install deploykit</a>
-            <a href="cyberpunk.html" class="btn-outline-green">← Portfolio</a>
+            <a href="index.html" class="btn-outline-green">← Portfolio</a>
           </div>
         </div>
 
@@ -952,7 +971,7 @@
     </section>
 
     <footer>
-      <span>DeployKit — Open Source · MIT License · <a href="cyberpunk.html">by Mayur C Dhage</a></span>
+      <span>DeployKit — Open Source · MIT License · <a href="index.html">by Mayur C Dhage</a></span>
       <span>Built with TypeScript · Node.js · Docker · GitHub Actions</span>
     </footer>
 

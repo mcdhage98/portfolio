@@ -794,8 +794,25 @@
       }
       .form-note { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; }
 
+      .nav-back-mobile {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--cyan);
+        text-decoration: none;
+        border: 1px solid rgba(56,189,248,0.3);
+        padding: 7px 14px;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+      .nav-back-mobile:hover { background: rgba(56,189,248,0.08); }
+
       @media (max-width: 900px) {
         nav { padding: 16px 24px; }
+        .nav-right .nav-badge, .nav-right .btn-nav { display: none; }
+        .nav-back-mobile { display: flex; }
         #hero { padding: 100px 24px 60px; }
         .hero-inner { grid-template-columns: 1fr; gap: 48px; }
         #features, #metrics, #cta, #contact-form { padding: 72px 24px; }
@@ -813,7 +830,7 @@
 
     <!-- NAV -->
     <nav>
-      <a href="cyberpunk.html" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <svg class="logo-icon" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="ng" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
@@ -846,6 +863,7 @@
       <div class="nav-right">
         <span class="nav-badge">● Live Platform</span>
         <a href="#cta" class="btn-nav">Request Demo</a>
+        <a href="index.html" class="nav-back-mobile">← Portfolio</a>
       </div>
     </nav>
 
@@ -1121,7 +1139,7 @@
     </section>
 
     <footer>
-      <span>© 2026 NEXUS ANALYTICS — A Project by <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>© 2026 NEXUS ANALYTICS — A Project by <a href="index.html">Mayur C Dhage</a></span>
       <span>Built with Go · Kafka · ClickHouse · React · Kubernetes</span>
     </footer>
 

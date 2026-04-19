@@ -46,6 +46,10 @@
       }
 
       /* ── CUSTOM CURSOR ── */
+      @media (pointer: coarse), (max-width: 768px) {
+        body { cursor: auto; }
+        #cursor, #cursor-ring { display: none !important; }
+      }
       #cursor {
         position: fixed;
         z-index: 9999;

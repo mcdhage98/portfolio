@@ -637,9 +637,26 @@
       }
       .form-note { font-size: 12px; color: var(--muted2); text-align: center; margin-top: 14px; }
 
+      .nav-back-mobile {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--indigo);
+        text-decoration: none;
+        border: 1px solid rgba(99,102,241,0.3);
+        padding: 7px 14px;
+        border-radius: 8px;
+        transition: background 0.15s;
+      }
+      .nav-back-mobile:hover { background: var(--indigo-pale); }
+
       @media (max-width: 960px) {
         nav { padding: 0 24px; }
         .nav-links { display: none; }
+        .nav-right { display: none; }
+        .nav-back-mobile { display: flex; }
         #hero { padding: 72px 24px 56px; }
         .feature-strip { grid-template-columns: 1fr 1fr; padding: 32px 24px; }
         #auth, #cta, #contact-form { padding: 72px 24px; }
@@ -658,7 +675,7 @@
 
     <!-- NAV -->
     <nav>
-      <a href="cyberpunk.html" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <svg class="nav-logo-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="ag" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
@@ -688,6 +705,7 @@
         <a href="#" class="btn-text">Sign in</a>
         <a href="#cta" class="btn-indigo">Start for free →</a>
       </div>
+      <a href="index.html" class="nav-back-mobile">← Portfolio</a>
     </nav>
 
     <!-- HERO -->
@@ -933,7 +951,7 @@
 
     <footer>
       <span class="footer-logo">Auth<span>Wave</span></span>
-      <span>A Project by <a href="cyberpunk.html">Mayur C Dhage</a> · Built with Node.js, PostgreSQL, Redis</span>
+      <span>A Project by <a href="index.html">Mayur C Dhage</a> · Built with Node.js, PostgreSQL, Redis</span>
       <span>© 2026</span>
     </footer>
 

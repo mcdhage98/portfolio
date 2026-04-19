@@ -699,9 +699,27 @@
       }
       .form-note { font-size: 12px; color: var(--muted2); text-align: center; margin-top: 14px; }
 
+      .nav-back-mobile {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Sora', sans-serif;
+        color: var(--orange);
+        text-decoration: none;
+        border: 1px solid rgba(255,107,53,0.3);
+        padding: 7px 14px;
+        border-radius: 100px;
+        transition: background 0.2s;
+      }
+      .nav-back-mobile:hover { background: rgba(255,107,53,0.08); }
+
       @media (max-width: 900px) {
         nav { padding: 0 24px; }
         .nav-links { display: none; }
+        .nav-cta { display: none; }
+        .nav-back-mobile { display: flex; }
         #hero { padding: 80px 24px 56px; }
         .hero-inner { grid-template-columns: 1fr; }
         .phone-wrap { margin-top: 40px; }
@@ -720,7 +738,7 @@
 
     <!-- NAV -->
     <nav>
-      <a href="cyberpunk.html" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <svg class="logo-mark" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="pg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
@@ -741,6 +759,7 @@
         <li><a href="#">Pricing</a></li>
       </ul>
       <a href="#cta" class="nav-cta">Download App</a>
+      <a href="index.html" class="nav-back-mobile">← Portfolio</a>
     </nav>
 
     <!-- HERO -->
@@ -1032,7 +1051,7 @@
     </section>
 
     <footer>
-      <span>© 2026 Pulse — A Project by <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>© 2026 Pulse — A Project by <a href="index.html">Mayur C Dhage</a></span>
       <span>Built with React Native · Python · TensorFlow</span>
     </footer>
 

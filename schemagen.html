@@ -643,9 +643,27 @@
       }
       .form-note { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--comment); text-align: center; margin-top: 14px; }
 
+      .nav-back-mobile {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: 'Fira Code', monospace;
+        color: var(--blue);
+        text-decoration: none;
+        border: 1px solid rgba(137,180,250,0.25);
+        padding: 7px 14px;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+      .nav-back-mobile:hover { background: rgba(137,180,250,0.06); }
+
       @media (max-width: 960px) {
         nav { padding: 0 24px; }
         .nav-links { display: none; }
+        .nav-cta { display: none; }
+        .nav-back-mobile { display: flex; }
         #hero { grid-template-columns: 1fr; padding-top: 56px; }
         .hero-left { padding: 64px 24px; border-right: none; border-bottom: 1px solid var(--border); min-height: auto; }
         .hero-right { padding: 24px; min-height: 400px; }
@@ -662,7 +680,7 @@
 
     <!-- NAV -->
     <nav>
-      <a href="cyberpunk.html" class="nav-logo">
+      <a href="index.html" class="nav-logo">
         <svg class="nav-logo-icon" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="sg" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
@@ -688,6 +706,7 @@
         <li><a href="#">Docs</a></li>
       </ul>
       <a href="https://npmjs.com" class="nav-cta">npm install</a>
+      <a href="index.html" class="nav-back-mobile">← Portfolio</a>
     </nav>
 
     <!-- HERO — split panel -->
@@ -710,7 +729,7 @@
 
         <div class="hero-actions">
           <a href="https://npmjs.com" class="btn-blue">Get Started →</a>
-          <a href="cyberpunk.html" class="btn-ghost">← Portfolio</a>
+          <a href="index.html" class="btn-ghost">← Portfolio</a>
         </div>
 
         <div class="hero-stats">
@@ -943,7 +962,7 @@
     </section>
 
     <footer>
-      <span>schema-gen v3.1.0 — MIT © 2026 <a href="cyberpunk.html">Mayur C Dhage</a></span>
+      <span>schema-gen v3.1.0 — MIT © 2026 <a href="index.html">Mayur C Dhage</a></span>
       <span>Built with TypeScript · AST · OpenAPI</span>
     </footer>
 
